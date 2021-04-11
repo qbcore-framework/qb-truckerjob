@@ -92,7 +92,7 @@ Citizen.CreateThread(function()
         Citizen.Wait(1)
         if isLoggedIn and QBCore ~= nil then
             if PlayerJob.name == "trucker" then
-                if IsControlJustReleased(0, Keys["DEL"]) then
+                if IsControlJustReleased(0, 178) then
                     if IsPedInAnyVehicle(PlayerPedId()) and isTruckerVehicle(GetVehiclePedIsIn(PlayerPedId(), false)) then
                         getNewLocation()
                         CurrentPlate = GetVehicleNumberPlateText(GetVehiclePedIsIn(PlayerPedId(), false))
@@ -107,7 +107,7 @@ Citizen.CreateThread(function()
                         else
                             DrawText3D(Config.Locations["vehicle"].coords.x, Config.Locations["vehicle"].coords.y, Config.Locations["vehicle"].coords.z, "~g~E~w~ - Vehicle")
                         end
-                        if IsControlJustReleased(0, Keys["E"]) then
+                        if IsControlJustReleased(0, 38) then
                             if IsPedInAnyVehicle(PlayerPedId(), false) then
                                 if GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId()), -1) == PlayerPedId() then
                                     if isTruckerVehicle(GetVehiclePedIsIn(PlayerPedId(), false)) then
@@ -131,7 +131,7 @@ Citizen.CreateThread(function()
                 if #(pos - vector3(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)) < 4.5 then
                     if #(pos - vector3(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)) < 1.5 then
                         DrawText3D(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z, "~g~E~w~ - Payslip")
-                        if IsControlJustReleased(0, Keys["E"]) then
+                        if IsControlJustReleased(0, 38) then
                             if JobsDone > 0 then
                                 TriggerServerEvent("qb-trucker:server:01101110", JobsDone)
                                 JobsDone = 0
@@ -160,7 +160,7 @@ Citizen.CreateThread(function()
                                     local trunkpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
                                     if #(pos - vector3(trunkpos.x, trunkpos.y, trunkpos.z)) < 1.5 and not isWorking then
                                         DrawText3D(trunkpos.x, trunkpos.y, trunkpos.z, "~g~E~w~ - Pick Up Products")
-                                        if IsControlJustReleased(0, Keys["E"]) then
+                                        if IsControlJustReleased(0, 38) then
                                             isWorking = true
                                             QBCore.Functions.Progressbar("work_carrybox", "Take A Box Of Products", 2000, false, true, {
                                                 disableMovement = true,
@@ -189,7 +189,7 @@ Citizen.CreateThread(function()
                             elseif hasBox then
                                 if #(pos - vector3(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)) < 1.5 and not isWorking then
                                     DrawText3D(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z, "~g~E~w~ - Deliver Products")
-                                    if IsControlJustReleased(0, Keys["E"]) then
+                                    if IsControlJustReleased(0, 38) then
                                         isWorking = true
                                         TriggerEvent('animations:client:EmoteCommandStart', {"c"})
                                         Citizen.Wait(500)
