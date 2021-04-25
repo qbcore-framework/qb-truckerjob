@@ -11,27 +11,24 @@ AddEventHandler('qb-trucker:server:DoBail', function(bool, vehInfo)
     local Player = QBCore.Functions.GetPlayer(src)
 
     if bool then
-        -- if Player.PlayerData.money.cash >= Config.BailPrice then
-        --     Bail[Player.PlayerData.citizenid] = Config.BailPrice
-        --     Player.Functions.RemoveMoney('cash', Config.BailPrice, "tow-received-bail")
-        --     TriggerClientEvent('QBCore:Notify', src, 'You Have Paid The Deposit Of $1000,- (Cash)', 'success')
-        --     TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
-        -- else
-        if Player.PlayerData.money.bank >= Config.BailPrice then
+        if Player.PlayerData.money.cash >= Config.BailPrice then
+            Bail[Player.PlayerData.citizenid] = Config.BailPrice
+            Player.Functions.RemoveMoney('cash', Config.BailPrice, "tow-received-bail")
+            TriggerClientEvent('QBCore:Notify', src, 'You paid the deposit of 1000,-  (Cash)', 'success')
+            TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
+        elseif Player.PlayerData.money.bank >= Config.BailPrice then
             Bail[Player.PlayerData.citizenid] = Config.BailPrice
             Player.Functions.RemoveMoney('bank', Config.BailPrice, "tow-received-bail")
-            TriggerClientEvent('QBCore:Notify', src, 'You Have Paid The Deposit of $250,- (Bank)', 'success')
+            TriggerClientEvent('QBCore:Notify', src, 'You paid the deposit of 1000,- (Bank)', 'success')
             TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
         else
-            TriggerClientEvent('QBCore:Notify', src, 'You Do Not Have Enough Cash, The Deposit Is $250', 'error')
+            TriggerClientEvent('QBCore:Notify', src, 'You dont have enough cash you need 1000,-', 'error')
         end
     else
         if Bail[Player.PlayerData.citizenid] ~= nil then
-            Player.Functions.AddItem("cash", Bail[Player.PlayerData.citizenid], false) 
-            TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items['cash'], "add")
-            --Player.Functions.AddMoney('cash', Bail[Player.PlayerData.citizenid], "trucker-bail-paid")
+            Player.Functions.AddMoney('cash', Bail[Player.PlayerData.citizenid], "trucker-bail-paid")
             Bail[Player.PlayerData.citizenid] = nil
-            TriggerClientEvent('QBCore:Notify', src, 'You Have Received The Deposit Of $250, - Back', 'success')
+            TriggerClientEvent('QBCore:Notify', src, 'You recived you deposit of 1000,-', 'success')
         end
     end
 end)
