@@ -48,51 +48,51 @@ Config.Locations = {
             name = "247supermarket3",
             coords = {x = -3245.85, y = 1008.25, z = 12.83, h = 90.5},
         },
-        [8] = {
+        [10] = {
             name = "247supermarket4",
             coords = {x = 1735.54, y = 6416.28, z = 35.03, h = 332.5},
         },
-        [9] = {
+        [11] = {
             name = "247supermarket5",
             coords = {x = 1702.84, y = 4917.28, z = 42.22, h = 323.5},
         },
-        [10] = {
+        [12] = {
             name = "247supermarket6",
             coords = {x = 1960.47, y = 3753.59, z = 32.26, h = 127.5},
         },
-        [11] = {
+        [13] = {
             name = "robsliquor4",
             coords = {x = 1169.27, y = 2707.7, z = 38.15, h = 267.5},
         },
-        [12] = {
+        [14] = {
             name = "247supermarket7",
             coords = {x = 543.47, y = 2658.81, z = 42.17, h = 277.5},
         },
-        [13] = {
+        [15] = {
             name = "247supermarket8",
             coords = {x = 2678.09, y = 3288.43, z = 55.24, h = 61.5},
         },
-        [14] = {
+        [16] = {
             name = "247supermarket9",
             coords = {x = 2553.0, y = 399.32, z = 108.61, h = 179.5, r = 1.0},
         },
-        [15] = {
+        [17] = {
             name = "ltdgasoline4",
             coords = {x = 1155.97, y = -319.76, z = 69.2, h = 17.5},
         },
-        [16] = {
+        [18] = {
             name = "robsliquor5",
             coords = {x = 1119.78, y = -983.99, z = 46.29, h = 287.5},
         },
-        [17] = {
-            name = "247supermarket9",
+        [19] = {
+            name = "247supermarket10",
             coords = {x = 382.13, y = 326.2, z = 103.56, h = 253.5},
         },
-        [18] = {
+        [20] = {
             name = "hardware",
             coords = {x = 89.33, y = -1745.44, z = 30.08, h = 143.5},
         },
-        [19] = {
+        [21] = {
             name = "hardware2",
             coords = {x = 2704.09, y = 3457.55, z = 55.53, h = 339.5},
         },
