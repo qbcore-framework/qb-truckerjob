@@ -1,12 +1,9 @@
 QBCore = nil
 
 Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(10)
-        if QBCore == nil then
-            TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
-            Citizen.Wait(200)
-        end
+    while QBCore == nil do
+    	TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
+    	Citizen.Wait(200)
     end
 end)
 
@@ -140,6 +137,7 @@ Citizen.CreateThread(function()
                                 end
                                 if CurrentBlip ~= nil then
                                     RemoveBlip(CurrentBlip)
+				    ClearAllBlipRoutes()
                                     CurrentBlip = nil
                                 end
                             else
@@ -214,6 +212,7 @@ Citizen.CreateThread(function()
                                                 end
                                                 if CurrentBlip ~= nil then
                                                     RemoveBlip(CurrentBlip)
+						    ClearAllBlipRoutes()
                                                     CurrentBlip = nil
                                                 end
                                                 CurrentLocation = nil
@@ -262,6 +261,7 @@ function getNewLocation()
         QBCore.Functions.Notify("You Went To All The Shops .. Time For Your Payslip!")
         if CurrentBlip ~= nil then
             RemoveBlip(CurrentBlip)
+	    ClearAllBlipRoutes()
             CurrentBlip = nil
         end
     end
@@ -340,11 +340,13 @@ end
 function RemoveTruckerBlips()
     if TruckVehBlip ~= nil then
         RemoveBlip(TruckVehBlip)
+	ClearAllBlipRoutes()
         TruckVehBlip = nil
     end
 
     if CurrentBlip ~= nil then
         RemoveBlip(CurrentBlip)
+	ClearAllBlipRoutes()
         CurrentBlip = nil
     end
 end
