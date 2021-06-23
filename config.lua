@@ -100,9 +100,5 @@ Config.Locations = {
 }
 
 Config.Vehicles = {
---<<<<<<< HEAD
     ["rumpo"] = "Dumbo Delivery",
---=======
-    ["Rumpo"] = "Dumbo Delivery",
--->>>>>>> 2b0bfe7860a4c84648f94cfb765666b89dc21672
 }
