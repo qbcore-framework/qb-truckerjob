@@ -111,10 +111,10 @@ Citizen.CreateThread(function()
                                         DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
                                         TriggerServerEvent('qb-trucker:server:DoBail', false)
                                     else
-                                        QBCore.Functions.Notify('Dit is niet het bedrijfsvoertuig!', 'error')
+                                        QBCore.Functions.Notify('This is not a commercial vehicle!', 'error')
                                     end
                                 else
-                                    QBCore.Functions.Notify('Je moet bestuurder zijn..')
+                                    QBCore.Functions.Notify('You must be the driver to do this..')
                                 end
                             else
                                 MenuGarage()
