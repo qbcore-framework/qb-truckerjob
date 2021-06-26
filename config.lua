@@ -48,51 +48,51 @@ Config.Locations = {
             name = "247supermarket3",
             coords = vector4(-3245.85, 1008.25, 12.83, 90.5),
         },
-        [8] = {
+        [10] = {
             name = "247supermarket4",
             coords = vector4(1735.54, 6416.28, 35.03, 332.5),
         },
-        [9] = {
+        [11] = {
             name = "247supermarket5",
             coords = vector4(1702.84, 4917.28, 42.22, 323.5),
         },
-        [10] = {
+        [12] = {
             name = "247supermarket6",
             coords = vector4(1960.47, 3753.59, 32.26, 127.5),
         },
-        [11] = {
+        [13] = {
             name = "robsliquor4",
             coords = vector4(1169.27, 2707.7, 38.15, 267.5),
         },
-        [12] = {
+        [14] = {
             name = "247supermarket7",
             coords = vector4(543.47, 2658.81, 42.17, 277.5),
         },
-        [13] = {
+        [15] = {
             name = "247supermarket8",
             coords = vector4(2678.09, 3288.43, 55.24, 61.5),
         },
-        [14] = {
+        [16] = {
             name = "247supermarket9",
             coords = vector4(2553.0, 399.32, 108.61, 179.5),
         },
-        [15] = {
+        [17] = {
             name = "ltdgasoline4",
             coords = vector4(1155.97, -319.76, 69.2, 17.5),
         },
-        [16] = {
+        [18] = {
             name = "robsliquor5",
             coords = vector4(1119.78, -983.99, 46.29, 287.5),
         },
-        [17] = {
-            name = "247supermarket9",
+        [19] = {
+            name = "247supermarket10",
             coords = vector4(382.13, 326.2, 103.56, 253.5),
         },
-        [18] = {
+        [20] = {
             name = "hardware",
             coords = vector4(89.33, -1745.44, 30.08, 143.5),
         },
-        [19] = {
+        [21] = {
             name = "hardware2",
             coords = vector4(2704.09, 3457.55, 55.53, 339.5),
         },
