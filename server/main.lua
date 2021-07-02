@@ -1,8 +1,4 @@
-QBCore = nil
-TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
-
 local PaymentTax = 15
-
 local Bail = {}
 
 RegisterServerEvent('qb-trucker:server:DoBail')
