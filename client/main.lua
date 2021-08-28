@@ -2,6 +2,7 @@ isLoggedIn = true
 local PlayerJob = {}
 local JobsDone = 0
 local LocationsDone = {}
+local WorkingLocations = {}						   
 local CurrentLocation = nil
 local CurrentBlip = nil
 local hasBox = false
@@ -22,7 +23,7 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     hasBox = false
     isWorking = false
     JobsDone = 0
-
+	TriggerServerEvent('qb-trucker:server:getWorkingLocation')
     if PlayerJob.name == "trucker" then
         TruckVehBlip = AddBlipForCoord(Config.Locations["vehicle"].coords.x, Config.Locations["vehicle"].coords.y, Config.Locations["vehicle"].coords.z)
         SetBlipSprite(TruckVehBlip, 326)
@@ -61,6 +62,7 @@ AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
         BeginTextCommandSetBlipName("STRING")
         AddTextComponentSubstringPlayerName(Config.Locations["vehicle"].label)
         EndTextCommandSetBlipName(TruckVehBlip)
+        TriggerServerEvent('qb-trucker:server:getWorkingLocation')  
     elseif OldlayerJob == "trucker" then
         RemoveTruckerBlips()
     end
@@ -193,9 +195,15 @@ Citizen.CreateThread(function()
                                             ClearPedTasks(PlayerPedId())
                                             hasBox = false
                                             currentCount = currentCount + 1
-                                            if currentCount == CurrentLocation.dropcount then
+                                            if currentCount >= CurrentLocation.dropcount then
+												local locationId = CurrentLocation.id;
                                                 table.insert(LocationsDone, CurrentLocation.id)
+                                                Citizen.SetTimeout(10 * 1000 * 60, function()
+                                                    table.remove(LocationsDone, locationId)
+                                                    TriggerEvent("qb-trucker:client:locationsDoneUpdate")
+                                                end)												
                                                 TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
+												TriggerServerEvent("qb-trucker:server:deliveryDone", CurrentLocation.dropcount)
                                                 QBCore.Functions.Notify("You Have Delivered All Products, To The Next Point")
                                                 local chance = math.random(1,100)
                                                 if chance < 26 then
@@ -203,7 +211,7 @@ Citizen.CreateThread(function()
                                                 end
                                                 if CurrentBlip ~= nil then
                                                     RemoveBlip(CurrentBlip)
-						    ClearAllBlipRoutes()
+													ClearAllBlipRoutes()
                                                     CurrentBlip = nil
                                                 end
                                                 CurrentLocation = nil
@@ -234,28 +242,29 @@ Citizen.CreateThread(function()
 end)
 
 function getNewLocation()
-    local location = getNextClosestLocation()
-    if location ~= 0 then
-        CurrentLocation = {}
-        CurrentLocation.id = location
-        CurrentLocation.dropcount = math.random(1, 3)
-        CurrentLocation.store = Config.Locations["stores"][location].name
-        CurrentLocation.x = Config.Locations["stores"][location].coords.x
-        CurrentLocation.y = Config.Locations["stores"][location].coords.y
-        CurrentLocation.z = Config.Locations["stores"][location].coords.z
-
-        CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
-        SetBlipColour(CurrentBlip, 3)
-        SetBlipRoute(CurrentBlip, true)
-        SetBlipRouteColour(CurrentBlip, 3)
-    else
-        QBCore.Functions.Notify("You Went To All The Shops .. Time For Your Payslip!")
-        if CurrentBlip ~= nil then
-            RemoveBlip(CurrentBlip)
-	    ClearAllBlipRoutes()
-            CurrentBlip = nil
-        end
+    TriggerServerEvent("qb-trucker:server:workingLocation", location)
+    if (location == false) then
+        CurrentLocation = nil;
+        return 
     end
+    CurrentLocation = {}
+    CurrentLocation.id = location
+    CurrentLocation.dropcount = math.random(1, 3)
+    CurrentLocation.store = Config.Locations["stores"][location].name
+    CurrentLocation.x = Config.Locations["stores"][location].coords.x
+    CurrentLocation.y = Config.Locations["stores"][location].coords.y
+    CurrentLocation.z = Config.Locations["stores"][location].coords.z
+    
+    if CurrentBlip ~= nil then
+        RemoveBlip(CurrentBlip)
+        CurrentBlip = nil
+    end
+
+    CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
+    SetBlipColour(CurrentBlip, 3)
+    SetBlipRoute(CurrentBlip, true)
+    SetBlipRouteColour(CurrentBlip, 3)
+    QBCore.Functions.Notify('You Went To All The Shops .. Time For Your Payslip!', 'success');
 end
 
 function getNextClosestLocation()
@@ -342,6 +351,11 @@ function RemoveTruckerBlips()
     end
 end
 
+RegisterNetEvent('qb-trucker:client:updateWorkingLocations')
+AddEventHandler("qb-trucker:client:updateWorkingLocations", function(nWorkingLocations)
+    WorkingLocations = nWorkingLocations;
+end)
+
 RegisterNetEvent('qb-trucker:client:SpawnVehicle')
 AddEventHandler('qb-trucker:client:SpawnVehicle', function()
     local vehicleInfo = selectedVeh
@@ -379,4 +393,27 @@ function DrawText3D(x, y, z, text)
     local factor = (string.len(text)) / 370
     DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
     ClearDrawOrigin()
+end
+
+function GetJobInfo()
+    local returnn = {
+        ['WorkingLocations'] = WorkingLocations,
+        ['JobsDone'] = JobsDone,
+        ['Locations'] = Config.Locations["stores"],
+        ['LocationsDone'] = LocationsDone,  
+    }
+    return returnn
+end
+
+function IsWorking()
+    return QBCore.Functions.GetPlayerData().job.name == "trucker" 
+end
+
+function CancelJob()
+    if CurrentBlip ~= nil then
+        RemoveBlip(CurrentBlip)
+        CurrentBlip = nil
+    end
+    SetCurrentLocation(false)
+    QBCore.Functions.Notify("Delivery has been cancelled", "error")
 end
