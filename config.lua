@@ -102,3 +102,10 @@ Config.Locations = {
 Config.Vehicles = {
     ["rumpo"] = "Dumbo Delivery",
 }
+
+Config.Rewards = {
+    ["delivery"] = {
+        "iron", 
+        "metalscrap",
+    },
+}
