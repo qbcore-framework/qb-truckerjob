@@ -1,4 +1,4 @@
-isLoggedIn = true
+local isLoggedIn = true
 local PlayerJob = {}
 local JobsDone = 0
 local LocationsDone = {}
@@ -9,7 +9,6 @@ local isWorking = false
 local currentCount = 0
 local CurrentPlate = nil
 local CurrentTow = nil
-
 local selectedVeh = nil
 local TruckVehBlip = nil
 
