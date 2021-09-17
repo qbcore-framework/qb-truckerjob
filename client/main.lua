@@ -202,7 +202,7 @@ Citizen.CreateThread(function()
                                                 end
                                                 if CurrentBlip ~= nil then
                                                     RemoveBlip(CurrentBlip)
-						    ClearAllBlipRoutes()
+						                            ClearAllBlipRoutes()
                                                     CurrentBlip = nil
                                                 end
                                                 CurrentLocation = nil
@@ -251,7 +251,7 @@ function getNewLocation()
         QBCore.Functions.Notify("You Went To All The Shops .. Time For Your Payslip!")
         if CurrentBlip ~= nil then
             RemoveBlip(CurrentBlip)
-	    ClearAllBlipRoutes()
+	        ClearAllBlipRoutes()
             CurrentBlip = nil
         end
     end
@@ -330,13 +330,13 @@ end
 function RemoveTruckerBlips()
     if TruckVehBlip ~= nil then
         RemoveBlip(TruckVehBlip)
-	ClearAllBlipRoutes()
+	    ClearAllBlipRoutes()
         TruckVehBlip = nil
     end
 
     if CurrentBlip ~= nil then
         RemoveBlip(CurrentBlip)
-	ClearAllBlipRoutes()
+	    ClearAllBlipRoutes()
         CurrentBlip = nil
     end
 end
