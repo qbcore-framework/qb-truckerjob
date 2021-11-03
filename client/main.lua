@@ -75,7 +75,7 @@ Citizen.CreateThread(function()
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentSubstringPlayerName(Config.Locations["main"].label)
     EndTextCommandSetBlipName(TruckerBlip)
-    while true do 
+    while true do
         Citizen.Wait(1)
         if isLoggedIn and QBCore ~= nil then
             if PlayerJob.name == "trucker" then
@@ -112,9 +112,9 @@ Citizen.CreateThread(function()
                             end
                         end
                         Menu.renderGUI()
-                    end 
+                    end
                 end
-    
+
                 if #(pos - vector3(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)) < 4.5 then
                     if #(pos - vector3(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)) < 1.5 then
                         DrawText3D(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z, "~g~E~w~ - Payslip")
@@ -136,9 +136,9 @@ Citizen.CreateThread(function()
                         end
                     elseif #(pos - vector3(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)) < 2.5 then
                         DrawText3D(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z, "Payslip")
-                    end  
+                    end
                 end
-    
+
                 if CurrentLocation ~= nil  and currentCount < CurrentLocation.dropcount then
                     if #(pos - vector3(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)) < 40.0 then
                         if not IsPedInAnyVehicle(PlayerPedId()) then
@@ -193,7 +193,7 @@ Citizen.CreateThread(function()
                                             hasBox = false
                                             currentCount = currentCount + 1
                                             if currentCount == CurrentLocation.dropcount then
-                                                table.insert(LocationsDone, CurrentLocation.id)
+                                                LocationsDone[#LocationsDone+1] = CurrentLocation.id
                                                 TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
                                                 QBCore.Functions.Notify("You Have Delivered All Products, To The Next Point")
                                                 local chance = math.random(1,100)
@@ -202,7 +202,7 @@ Citizen.CreateThread(function()
                                                 end
                                                 if CurrentBlip ~= nil then
                                                     RemoveBlip(CurrentBlip)
-						    ClearAllBlipRoutes()
+						                            ClearAllBlipRoutes()
                                                     CurrentBlip = nil
                                                 end
                                                 CurrentLocation = nil
@@ -267,13 +267,13 @@ function getNextClosestLocation()
             if #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z)) < dist then
                 if not hasDoneLocation(k) then
                     current = k
-                    dist = #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z))   
+                    dist = #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z))
                 end
             end
         else
             if not hasDoneLocation(k) then
                 current = k
-                dist = #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z))    
+                dist = #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z))
             end
         end
     end
@@ -283,7 +283,7 @@ end
 
 function hasDoneLocation(locationId)
     local retval = false
-    if LocationsDone ~= nil and next(LocationsDone) ~= nil then 
+    if LocationsDone ~= nil and next(LocationsDone) ~= nil then
         for k, v in pairs(LocationsDone) do
             if v == locationId then
                 retval = true
@@ -308,7 +308,7 @@ function MenuGarage()
     MenuTitle = "Garage"
     ClearMenu()
     Menu.addButton("Vehicles", "VehicleList", nil)
-    Menu.addButton("Close Menu", "closeMenuFull", nil) 
+    Menu.addButton("Close Menu", "closeMenuFull", nil)
 end
 
 function VehicleList(isDown)
@@ -318,7 +318,7 @@ function VehicleList(isDown)
     for k, v in pairs(Config.Vehicles) do
         Menu.addButton(Config.Vehicles[k], "TakeOutVehicle", k, "Garage", " Motor: 100%", " Body: 100%", " Fuel: 100%")
     end
-        
+
     Menu.addButton("Back", "MenuGarage",nil)
 end
 
