@@ -82,7 +82,7 @@ Citizen.CreateThread(function()
                 if IsControlJustReleased(0, 178) then
                     if IsPedInAnyVehicle(PlayerPedId()) and isTruckerVehicle(GetVehiclePedIsIn(PlayerPedId(), false)) then
                         getNewLocation()
-                        CurrentPlate = GetVehicleNumberPlateText(GetVehiclePedIsIn(PlayerPedId(), false))
+                        CurrentPlate = QBCore.Functions.GetPlate(GetVehiclePedIsIn(PlayerPedId(), false))
                     end
                 end
                 local pos = GetEntityCoords(PlayerPedId())
@@ -144,7 +144,7 @@ Citizen.CreateThread(function()
                         if not IsPedInAnyVehicle(PlayerPedId()) then
                             if not hasBox then
                                 local vehicle = GetVehiclePedIsIn(PlayerPedId(), true)
-                                if isTruckerVehicle(vehicle) and CurrentPlate == GetVehicleNumberPlateText(vehicle) then
+                                if isTruckerVehicle(vehicle) and CurrentPlate == QBCore.Functions.GetPlate(vehicle) then
                                     local trunkpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
                                     if #(pos - vector3(trunkpos.x, trunkpos.y, trunkpos.z)) < 1.5 and not isWorking then
                                         DrawText3D(trunkpos.x, trunkpos.y, trunkpos.z, "~g~E~w~ - Pick Up Products")
@@ -352,9 +352,9 @@ AddEventHandler('qb-trucker:client:SpawnVehicle', function()
         closeMenuFull()
         TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
         SetEntityAsMissionEntity(veh, true, true)
-        TriggerEvent("vehiclekeys:client:SetOwner", GetVehicleNumberPlateText(veh))
+        TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
         SetVehicleEngineOn(veh, true, true)
-        CurrentPlate = GetVehicleNumberPlateText(veh)
+        CurrentPlate = QBCore.Functions.GetPlate(veh)
         getNewLocation()
     end, coords, true)
 end)
