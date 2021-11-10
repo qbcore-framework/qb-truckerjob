@@ -1,5 +1,4 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-local isLoggedIn = true
 local PlayerJob = {}
 local JobsDone = 0
 local LocationsDone = {}
@@ -9,12 +8,162 @@ local hasBox = false
 local isWorking = false
 local currentCount = 0
 local CurrentPlate = nil
-local CurrentTow = nil
 local selectedVeh = nil
 local TruckVehBlip = nil
 
+-- Functions
+
+local function hasDoneLocation(locationId)
+    local retval = false
+    if LocationsDone ~= nil and next(LocationsDone) ~= nil then
+        for k, v in pairs(LocationsDone) do
+            if v == locationId then
+                retval = true
+            end
+        end
+    end
+    return retval
+end
+
+local function getNextClosestLocation()
+    local pos = GetEntityCoords(PlayerPedId(), true)
+    local current = 0
+    local dist = nil
+
+    for k, _ in pairs(Config.Locations["stores"]) do
+        if current ~= 0 then
+            if #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z)) < dist then
+                if not hasDoneLocation(k) then
+                    current = k
+                    dist = #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z))
+                end
+            end
+        else
+            if not hasDoneLocation(k) then
+                current = k
+                dist = #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z))
+            end
+        end
+    end
+
+    return current
+end
+
+local function getNewLocation()
+    local location = getNextClosestLocation()
+    if location ~= 0 then
+        CurrentLocation = {}
+        CurrentLocation.id = location
+        CurrentLocation.dropcount = math.random(1, 3)
+        CurrentLocation.store = Config.Locations["stores"][location].name
+        CurrentLocation.x = Config.Locations["stores"][location].coords.x
+        CurrentLocation.y = Config.Locations["stores"][location].coords.y
+        CurrentLocation.z = Config.Locations["stores"][location].coords.z
+
+        CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
+        SetBlipColour(CurrentBlip, 3)
+        SetBlipRoute(CurrentBlip, true)
+        SetBlipRouteColour(CurrentBlip, 3)
+    else
+        QBCore.Functions.Notify("You Went To All The Shops .. Time For Your Payslip!")
+        if CurrentBlip ~= nil then
+            RemoveBlip(CurrentBlip)
+	    ClearAllBlipRoutes()
+            CurrentBlip = nil
+        end
+    end
+end
+
+local function isTruckerVehicle(vehicle)
+    local retval = false
+    for k, v in pairs(Config.Vehicles) do
+        if GetEntityModel(vehicle) == GetHashKey(k) then
+            retval = true
+        end
+    end
+    return retval
+end
+
+local function DrawText3D(x, y, z, text)
+	SetTextScale(0.35, 0.35)
+    SetTextFont(4)
+    SetTextProportional(1)
+    SetTextColour(255, 255, 255, 215)
+    SetTextEntry("STRING")
+    SetTextCentre(true)
+    AddTextComponentString(text)
+    SetDrawOrigin(x,y,z, 0)
+    DrawText(0.0, 0.0)
+    local factor = (string.len(text)) / 370
+    DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
+    ClearDrawOrigin()
+end
+
+local function RemoveTruckerBlips()
+    if TruckVehBlip ~= nil then
+        RemoveBlip(TruckVehBlip)
+	ClearAllBlipRoutes()
+        TruckVehBlip = nil
+    end
+
+    if CurrentBlip ~= nil then
+        RemoveBlip(CurrentBlip)
+	ClearAllBlipRoutes()
+        CurrentBlip = nil
+    end
+end
+
+-- Old Menu Code (being removed)
+
+function MenuGarage()
+    ped = PlayerPedId();
+    MenuTitle = "Garage"
+    ClearMenu()
+    Menu.addButton("Vehicles", "VehicleList", nil)
+    Menu.addButton("Close Menu", "closeMenuFull", nil)
+end
+
+function VehicleList()
+    ped = PlayerPedId();
+    MenuTitle = "Vehicles:"
+    ClearMenu()
+    for k, v in pairs(Config.Vehicles) do
+        Menu.addButton(Config.Vehicles[k], "TakeOutVehicle", k, "Garage", " Motor: 100%", " Body: 100%", " Fuel: 100%")
+    end
+    Menu.addButton("Back", "MenuGarage",nil)
+end
+
+function TakeOutVehicle(vehicleInfo)
+    TriggerServerEvent('qb-trucker:server:DoBail', true, vehicleInfo)
+    selectedVeh = vehicleInfo
+end
+
+function closeMenuFull()
+    Menu.hidden = true
+    currentGarage = nil
+    ClearMenu()
+end
+
+-- Events
+
+RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
+    local vehicleInfo = selectedVeh
+    local coords = Config.Locations["vehicle"].coords
+    QBCore.Functions.SpawnVehicle(vehicleInfo, function(veh)
+        SetVehicleNumberPlateText(veh, "TRUK"..tostring(math.random(1000, 9999)))
+        SetEntityHeading(veh, coords.w)
+        exports['LegacyFuel']:SetFuel(veh, 100.0)
+        closeMenuFull()
+        TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
+        SetEntityAsMissionEntity(veh, true, true)
+        TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
+        SetVehicleEngineOn(veh, true, true)
+        CurrentPlate = QBCore.Functions.GetPlate(veh)
+        getNewLocation()
+    end, coords, true)
+end)
+
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    isLoggedIn = true
     PlayerJob = QBCore.Functions.GetPlayerData().job
     CurrentLocation = nil
     CurrentBlip = nil
@@ -63,6 +212,8 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     end
 end)
 
+-- Threads
+
 CreateThread(function()
     local TruckerBlip = AddBlipForCoord(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)
     SetBlipSprite(TruckerBlip, 479)
@@ -75,7 +226,7 @@ CreateThread(function()
     EndTextCommandSetBlipName(TruckerBlip)
     while true do
         Wait(1)
-        if isLoggedIn and QBCore ~= nil then
+        if LocalPlayer.state.isLoggedIn then
             if PlayerJob.name == "trucker" then
                 if IsControlJustReleased(0, 178) then
                     if IsPedInAnyVehicle(PlayerPedId()) and isTruckerVehicle(GetVehiclePedIsIn(PlayerPedId(), false)) then
@@ -125,7 +276,7 @@ CreateThread(function()
                                 end
                                 if CurrentBlip ~= nil then
                                     RemoveBlip(CurrentBlip)
-				    ClearAllBlipRoutes()
+				                    ClearAllBlipRoutes()
                                     CurrentBlip = nil
                                 end
                             else
@@ -229,150 +380,3 @@ CreateThread(function()
         end
     end
 end)
-
-function getNewLocation()
-    local location = getNextClosestLocation()
-    if location ~= 0 then
-        CurrentLocation = {}
-        CurrentLocation.id = location
-        CurrentLocation.dropcount = math.random(1, 3)
-        CurrentLocation.store = Config.Locations["stores"][location].name
-        CurrentLocation.x = Config.Locations["stores"][location].coords.x
-        CurrentLocation.y = Config.Locations["stores"][location].coords.y
-        CurrentLocation.z = Config.Locations["stores"][location].coords.z
-
-        CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
-        SetBlipColour(CurrentBlip, 3)
-        SetBlipRoute(CurrentBlip, true)
-        SetBlipRouteColour(CurrentBlip, 3)
-    else
-        QBCore.Functions.Notify("You Went To All The Shops .. Time For Your Payslip!")
-        if CurrentBlip ~= nil then
-            RemoveBlip(CurrentBlip)
-	    ClearAllBlipRoutes()
-            CurrentBlip = nil
-        end
-    end
-end
-
-function getNextClosestLocation()
-    local pos = GetEntityCoords(PlayerPedId(), true)
-    local current = 0
-    local dist = nil
-
-    for k, _ in pairs(Config.Locations["stores"]) do
-        if current ~= 0 then
-            if #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z)) < dist then
-                if not hasDoneLocation(k) then
-                    current = k
-                    dist = #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z))
-                end
-            end
-        else
-            if not hasDoneLocation(k) then
-                current = k
-                dist = #(pos - vector3(Config.Locations["stores"][k].coords.x, Config.Locations["stores"][k].coords.y, Config.Locations["stores"][k].coords.z))
-            end
-        end
-    end
-
-    return current
-end
-
-function hasDoneLocation(locationId)
-    local retval = false
-    if LocationsDone ~= nil and next(LocationsDone) ~= nil then
-        for k, v in pairs(LocationsDone) do
-            if v == locationId then
-                retval = true
-            end
-        end
-    end
-    return retval
-end
-
-function isTruckerVehicle(vehicle)
-    local retval = false
-    for k, v in pairs(Config.Vehicles) do
-        if GetEntityModel(vehicle) == GetHashKey(k) then
-            retval = true
-        end
-    end
-    return retval
-end
-
-function MenuGarage()
-    ped = PlayerPedId();
-    MenuTitle = "Garage"
-    ClearMenu()
-    Menu.addButton("Vehicles", "VehicleList", nil)
-    Menu.addButton("Close Menu", "closeMenuFull", nil)
-end
-
-function VehicleList(isDown)
-    ped = PlayerPedId();
-    MenuTitle = "Vehicles:"
-    ClearMenu()
-    for k, v in pairs(Config.Vehicles) do
-        Menu.addButton(Config.Vehicles[k], "TakeOutVehicle", k, "Garage", " Motor: 100%", " Body: 100%", " Fuel: 100%")
-    end
-
-    Menu.addButton("Back", "MenuGarage",nil)
-end
-
-function TakeOutVehicle(vehicleInfo)
-    TriggerServerEvent('qb-trucker:server:DoBail', true, vehicleInfo)
-    selectedVeh = vehicleInfo
-end
-
-function RemoveTruckerBlips()
-    if TruckVehBlip ~= nil then
-        RemoveBlip(TruckVehBlip)
-	ClearAllBlipRoutes()
-        TruckVehBlip = nil
-    end
-
-    if CurrentBlip ~= nil then
-        RemoveBlip(CurrentBlip)
-	ClearAllBlipRoutes()
-        CurrentBlip = nil
-    end
-end
-
-RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
-    local vehicleInfo = selectedVeh
-    local coords = Config.Locations["vehicle"].coords
-    QBCore.Functions.SpawnVehicle(vehicleInfo, function(veh)
-        SetVehicleNumberPlateText(veh, "TRUK"..tostring(math.random(1000, 9999)))
-        SetEntityHeading(veh, coords.w)
-        exports['LegacyFuel']:SetFuel(veh, 100.0)
-        closeMenuFull()
-        TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
-        SetEntityAsMissionEntity(veh, true, true)
-        TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
-        SetVehicleEngineOn(veh, true, true)
-        CurrentPlate = QBCore.Functions.GetPlate(veh)
-        getNewLocation()
-    end, coords, true)
-end)
-
-function closeMenuFull()
-    Menu.hidden = true
-    currentGarage = nil
-    ClearMenu()
-end
-
-function DrawText3D(x, y, z, text)
-	SetTextScale(0.35, 0.35)
-    SetTextFont(4)
-    SetTextProportional(1)
-    SetTextColour(255, 255, 255, 215)
-    SetTextEntry("STRING")
-    SetTextCentre(true)
-    AddTextComponentString(text)
-    SetDrawOrigin(x,y,z, 0)
-    DrawText(0.0, 0.0)
-    local factor = (string.len(text)) / 370
-    DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
-    ClearDrawOrigin()
-end

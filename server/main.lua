@@ -30,12 +30,12 @@ RegisterNetEvent('qb-trucker:server:DoBail', function(bool, vehInfo)
 end)
 
 RegisterNetEvent('qb-trucker:server:01101110', function(drops)
-    local src = source 
+    local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local drops = tonumber(drops)
     local bonus = 0
     local DropPrice = math.random(100, 120)
-    if drops > 5 then 
+    if drops > 5 then
         bonus = math.ceil((DropPrice / 10) * 5) + 100
     elseif drops > 10 then
         bonus = math.ceil((DropPrice / 10) * 7) + 300
