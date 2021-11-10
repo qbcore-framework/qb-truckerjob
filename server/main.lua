@@ -1,8 +1,8 @@
+local QBCore = exports['qb-core']:GetCoreObject()
 local PaymentTax = 15
 local Bail = {}
 
-RegisterServerEvent('qb-trucker:server:DoBail')
-AddEventHandler('qb-trucker:server:DoBail', function(bool, vehInfo)
+RegisterNetEvent('qb-trucker:server:DoBail', function(bool, vehInfo)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
 
@@ -29,8 +29,7 @@ AddEventHandler('qb-trucker:server:DoBail', function(bool, vehInfo)
     end
 end)
 
-RegisterNetEvent('qb-trucker:server:01101110')
-AddEventHandler('qb-trucker:server:01101110', function(drops)
+RegisterNetEvent('qb-trucker:server:01101110', function(drops)
     local src = source 
     local Player = QBCore.Functions.GetPlayer(src)
     local drops = tonumber(drops)
@@ -53,11 +52,8 @@ AddEventHandler('qb-trucker:server:01101110', function(drops)
     TriggerClientEvent('QBCore:Notify', src, 'You Earned $'..payment, 'success')
 end)
 
-RegisterNetEvent('qb-trucker:server:nano')
-AddEventHandler('qb-trucker:server:nano', function()
+RegisterNetEvent('qb-trucker:server:nano', function()
     local xPlayer = QBCore.Functions.GetPlayer(tonumber(source))
-
 	xPlayer.Functions.AddItem("cryptostick", 1, false)
 	TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items["cryptostick"], "add")
 end)
-

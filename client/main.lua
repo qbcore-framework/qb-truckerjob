@@ -1,3 +1,4 @@
+local QBCore = exports['qb-core']:GetCoreObject()
 local isLoggedIn = true
 local PlayerJob = {}
 local JobsDone = 0
@@ -12,8 +13,7 @@ local CurrentTow = nil
 local selectedVeh = nil
 local TruckVehBlip = nil
 
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
-AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     isLoggedIn = true
     PlayerJob = QBCore.Functions.GetPlayerData().job
     CurrentLocation = nil
@@ -35,8 +35,7 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     end
 end)
 
-RegisterNetEvent('QBCore:Client:OnPlayerUnload')
-AddEventHandler('QBCore:Client:OnPlayerUnload', function()
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     RemoveTruckerBlips()
     CurrentLocation = nil
     CurrentBlip = nil
@@ -45,8 +44,7 @@ AddEventHandler('QBCore:Client:OnPlayerUnload', function()
     JobsDone = 0
 end)
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate')
-AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     local OldlayerJob = PlayerJob.name
     PlayerJob = JobInfo
 
@@ -65,7 +63,7 @@ AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
     end
 end)
 
-Citizen.CreateThread(function()
+CreateThread(function()
     local TruckerBlip = AddBlipForCoord(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)
     SetBlipSprite(TruckerBlip, 479)
     SetBlipDisplay(TruckerBlip, 4)
@@ -76,7 +74,7 @@ Citizen.CreateThread(function()
     AddTextComponentSubstringPlayerName(Config.Locations["main"].label)
     EndTextCommandSetBlipName(TruckerBlip)
     while true do
-        Citizen.Wait(1)
+        Wait(1)
         if isLoggedIn and QBCore ~= nil then
             if PlayerJob.name == "trucker" then
                 if IsControlJustReleased(0, 178) then
@@ -180,7 +178,7 @@ Citizen.CreateThread(function()
                                     if IsControlJustReleased(0, 38) then
                                         isWorking = true
                                         TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-                                        Citizen.Wait(500)
+                                        Wait(500)
                                         TriggerEvent('animations:client:EmoteCommandStart', {"bumbin"})
                                         QBCore.Functions.Progressbar("work_dropbox", "Deliver Box Of Products", 2000, false, true, {
                                             disableMovement = true,
@@ -224,10 +222,10 @@ Citizen.CreateThread(function()
                     end
                 end
             else
-                Citizen.Wait(1000)
+                Wait(1000)
             end
         else
-            Citizen.Wait(1000)
+            Wait(1000)
         end
     end
 end)
@@ -341,8 +339,7 @@ function RemoveTruckerBlips()
     end
 end
 
-RegisterNetEvent('qb-trucker:client:SpawnVehicle')
-AddEventHandler('qb-trucker:client:SpawnVehicle', function()
+RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
     local vehicleInfo = selectedVeh
     local coords = Config.Locations["vehicle"].coords
     QBCore.Functions.SpawnVehicle(vehicleInfo, function(veh)
