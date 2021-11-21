@@ -236,7 +236,7 @@ RegisterNetEvent('qb-trucker:client:TakeOutVehicle', function(data)
     coords = vector3(coords.x, coords.y, coords.z)
     local ped = PlayerPedId()
     local pos = GetEntityCoords(ped)
-    if #(pos - coords) <= 1.5 then
+    if #(pos - coords) <= 5 then
         local vehicleInfo = data.vehicle
         TriggerServerEvent('qb-trucker:server:DoBail', true, vehicleInfo)
         selectedVeh = vehicleInfo
@@ -251,7 +251,7 @@ RegisterNetEvent('qb-trucker:client:SelectVehicle', function()
     local ped = PlayerPedId()
     local pos = GetEntityCoords(ped)
 
-    if #(pos - coords) <= 1.5 then
+    if #(pos - coords) <= 5 then
         MenuGarage()
     else
         QBCore.Functions.Notify('You are too far away', 'error')
@@ -275,7 +275,7 @@ function RunWorkThread()
             EndTextCommandSetBlipName(TruckerBlip)
 
             while LocalPlayer.state.isLoggedIn and PlayerJob.name == "trucker" do
-                Wait(1)
+                local sleep = 1000
                 local pos = GetEntityCoords(PlayerPedId())
                 local vehicleCoords = vector3(Config.Locations["vehicle"].coords.x, Config.Locations["vehicle"].coords.y, Config.Locations["vehicle"].coords.z)
                 local mainCoords = vector3(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)
@@ -327,6 +327,7 @@ function RunWorkThread()
                             end
                         end
                     end
+                    sleep = 5
                 else
                     if shownHeader then
                         shownHeader = false
@@ -360,11 +361,12 @@ function RunWorkThread()
                     elseif #(pos - mainCoords) < 2.5 then
                         DrawText3D(x, y, z, "Payslip")
                     end
+                    sleep = 5
                 end
 
                 if CurrentLocation ~= nil  and currentCount < CurrentLocation.dropcount then
                     if #(pos - vector3(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)) < 40.0 and not IsPedInAnyVehicle(PlayerPedId()) then
-
+                        sleep = 5
                         if not hasBox then
                             local vehicle = GetVehiclePedIsIn(PlayerPedId(), true)
                             if isTruckerVehicle(vehicle) and CurrentPlate == QBCore.Functions.GetPlate(vehicle) then
@@ -443,9 +445,10 @@ function RunWorkThread()
                                 DrawText3D(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z, "Deliver Products")
                             end
                         end
-
                     end
                 end
+
+                Wait(sleep)
             end
 
             ThreadAlreadyRan = false
