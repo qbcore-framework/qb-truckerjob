@@ -246,7 +246,6 @@ RegisterNetEvent('qb-trucker:client:TakeOutVehicle', function(data)
 end)
 
 RegisterNetEvent('qb-trucker:client:SelectVehicle', function()
-    print("poopoo")
     local coords = Config.Locations["vehicle"].coords
     coords = vector3(coords.x, coords.y, coords.z)
     local ped = PlayerPedId()
