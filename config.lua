@@ -1,5 +1,7 @@
 Config = {}
 
+Config.UseTarget = false
+
 Config.BailPrice = 250
 
 Config.Locations = {
