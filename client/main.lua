@@ -12,6 +12,8 @@ local selectedVeh = nil
 local TruckVehBlip = nil
 local ThreadAlreadyRan = false
 local Delivering = false
+local showMarker = false
+local markerLocation
 
 -- Functions
 
@@ -49,31 +51,6 @@ local function getNextClosestLocation()
     end
 
     return current
-end
-
-local function getNewLocation()
-    local location = getNextClosestLocation()
-    if location ~= 0 then
-        CurrentLocation = {}
-        CurrentLocation.id = location
-        CurrentLocation.dropcount = math.random(1, 3)
-        CurrentLocation.store = Config.Locations["stores"][location].name
-        CurrentLocation.x = Config.Locations["stores"][location].coords.x
-        CurrentLocation.y = Config.Locations["stores"][location].coords.y
-        CurrentLocation.z = Config.Locations["stores"][location].coords.z
-
-        CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
-        SetBlipColour(CurrentBlip, 3)
-        SetBlipRoute(CurrentBlip, true)
-        SetBlipRouteColour(CurrentBlip, 3)
-    else
-        QBCore.Functions.Notify(Lang:t("success.payslip_time"))
-        if CurrentBlip ~= nil then
-            RemoveBlip(CurrentBlip)
-	        ClearAllBlipRoutes()
-            CurrentBlip = nil
-        end
-    end
 end
 
 local function isTruckerVehicle(vehicle)
@@ -135,21 +112,6 @@ local function CloseMenuFull()
     exports['qb-menu']:closeMenu()
 end
 
-local function DrawText3D(x, y, z, text)
-	SetTextScale(0.35, 0.35)
-    SetTextFont(4)
-    SetTextProportional(1)
-    SetTextColour(255, 255, 255, 215)
-    SetTextEntry("STRING")
-    SetTextCentre(true)
-    AddTextComponentString(text)
-    SetDrawOrigin(x,y,z, 0)
-    DrawText(0.0, 0.0)
-    local factor = (string.len(text)) / 370
-    DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
-    ClearDrawOrigin()
-end
-
 local function CreateZone(type, number)
     local coords
     local heading
@@ -181,8 +143,10 @@ local function CreateZone(type, number)
         size = 40
     end
 
-    if Config.UseTarget and type ~= "stores"then    
+    if Config.UseTarget and type == "main"then    
         exports['qb-target']:AddBoxZone(boxName, coords, size, size, {
+            minZ = coords.z - 5.0,
+            maxZ = coords.z + 5.0,
             name = boxName,
             heading = heading,
             debugPoly = false,
@@ -199,10 +163,12 @@ local function CreateZone(type, number)
     else
         local zone = BoxZone:Create(
             coords, size, size, {
-            name = boxName,
-            debugPoly = false,
-            heading = heading,
-        })
+                minZ = coords.z - 5.0,
+                maxZ = coords.z + 5.0,
+                name = boxName,
+                debugPoly = false,
+                heading = heading,
+            })
     
         local zoneCombo = ComboZone:Create({zone}, {name = boxName, debugPoly = false})
         zoneCombo:onPlayerInOut(function(isPointInside)
@@ -212,18 +178,66 @@ local function CreateZone(type, number)
                 elseif type == "vehicle" then
                     TriggerEvent('qb-truckerjob:client:Vehicle')
                 elseif type == "stores" then
-                    TriggerEvent('qb-truckerjob:client:Store')
+                    markerLocation = coords
+                    QBCore.Functions.Notify(Lang:t("mission.store_reached"))
+                    TriggerEvent('qb-truckerjob:client:ShowMarker', true)
+                    TriggerEvent('qb-truckerjob:client:SetDelivering', true)
                 end
             else
-                Delivering = false
+                if type == "stores" then
+                    TriggerEvent('qb-truckerjob:client:ShowMarker', false)
+                    TriggerEvent('qb-truckerjob:client:SetDelivering', false)
+                end
             end
         end)
+        if type == "vehicle" then
+            local zonedel = BoxZone:Create(
+                coords, 40, 40, {
+                    minZ = coords.z - 5.0,
+                    maxZ = coords.z + 5.0,
+                    name = boxName,
+                    debugPoly = false,
+                    heading = heading,
+                })
+        
+            local zoneCombodel = ComboZone:Create({zonedel}, {name = boxName, debugPoly = false})
+            zoneCombodel:onPlayerInOut(function(isPointInside)
+                if isPointInside then
+                    markerLocation = coords
+                    TriggerEvent('qb-truckerjob:client:ShowMarker', true)
+                else
+                    TriggerEvent('qb-truckerjob:client:ShowMarker', false)
+                end
+            end)
+        elseif type == "stores" then
+            CurrentLocation.zoneCombo = zoneCombo
+        end
     end
 end
 
-local function CreateLocations()
-    for k, v in pairs(Config.Locations["stores"]) do
-        CreateZone("stores", k)
+local function getNewLocation()
+    local location = getNextClosestLocation()
+    if location ~= 0 then
+        CurrentLocation = {}
+        CurrentLocation.id = location
+        CurrentLocation.dropcount = math.random(1, 3)
+        CurrentLocation.store = Config.Locations["stores"][location].name
+        CurrentLocation.x = Config.Locations["stores"][location].coords.x
+        CurrentLocation.y = Config.Locations["stores"][location].coords.y
+        CurrentLocation.z = Config.Locations["stores"][location].coords.z
+        CreateZone("stores", location)
+
+        CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
+        SetBlipColour(CurrentBlip, 3)
+        SetBlipRoute(CurrentBlip, true)
+        SetBlipRouteColour(CurrentBlip, 3)
+    else
+        QBCore.Functions.Notify(Lang:t("success.payslip_time"))
+        if CurrentBlip ~= nil then
+            RemoveBlip(CurrentBlip)
+	        ClearAllBlipRoutes()
+            CurrentBlip = nil
+        end
     end
 end
 
@@ -288,101 +302,20 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     end
 end)
 
-RegisterNetEvent('qb-truckerjob:client:Store', function()
-    QBCore.Functions.Notify(Lang:t("mission.store_reached"))
-    Delivering = true
-    local sleep
-    CreateThread(function()
-        while Delivering do
-            if not IsPedInAnyVehicle(PlayerPedId()) then
-                sleep = 5
-                local pos = GetEntityCoords(PlayerPedId(), true)
-                if not hasBox then
-                    local vehicle = GetVehiclePedIsIn(PlayerPedId(), true)
-                    if isTruckerVehicle(vehicle) and CurrentPlate == QBCore.Functions.GetPlate(vehicle) then
-                        local trunkpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
-                        if #(pos - vector3(trunkpos.x, trunkpos.y, trunkpos.z)) < 1.5 and not isWorking then
-                            --DrawText3D(trunkpos.x, trunkpos.y, trunkpos.z, "~g~E~w~ - Pick Up Products")
-                            if IsControlJustReleased(0, 38) then
-                                isWorking = true
-                                QBCore.Functions.Progressbar("work_carrybox", Lang:t("mission.take_box"), 2000, false, true, {
-                                    disableMovement = true,
-                                    disableCarMovement = true,
-                                    disableMouse = false,
-                                    disableCombat = true,
-                                }, {
-                                    animDict = "anim@gangops@facility@servers@",
-                                    anim = "hotwire",
-                                    flags = 16,
-                                }, {}, {}, function() -- Done
-                                    isWorking = false
-                                    StopAnimTask(PlayerPedId(), "anim@gangops@facility@servers@", "hotwire", 1.0)
-                                    TriggerEvent('animations:client:EmoteCommandStart', {"box"})
-                                    hasBox = true
-                                end, function() -- Cancel
-                                    isWorking = false
-                                    StopAnimTask(PlayerPedId(), "anim@gangops@facility@servers@", "hotwire", 1.0)
-                                    QBCore.Functions.Notify(Lang:t("error.cancelled"), "error")
-                                end)
-                            end
-                        else
-                            --DrawText3D(trunkpos.x, trunkpos.y, trunkpos.z, "Pick Up Products")
-                        end
-                    end
-                elseif hasBox then
-                    if #(pos - vector3(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)) < 1.5 and not isWorking then
-                        DrawText3D(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z, Lang:t("info.deliver_e"))
-                        if IsControlJustReleased(0, 38) then
-                            isWorking = true
-                            TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-                            Wait(500)
-                            TriggerEvent('animations:client:EmoteCommandStart', {"bumbin"})
-                            QBCore.Functions.Progressbar("work_dropbox", Lang:t("mission.deliver_box"), 2000, false, true, {
-                                disableMovement = true,
-                                disableCarMovement = true,
-                                disableMouse = false,
-                                disableCombat = true,
-                            }, {}, {}, {}, function() -- Done
-                                isWorking = false
-                                ClearPedTasks(PlayerPedId())
-                                hasBox = false
-                                currentCount = currentCount + 1
-                                if currentCount == CurrentLocation.dropcount then
-                                    LocationsDone[#LocationsDone+1] = CurrentLocation.id
-                                    TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
-                                    QBCore.Functions.Notify(Lang:t("mission.goto_next_point"))
-                                    local chance = math.random(1,100)
-                                    Delivering = false
-                                    if chance < 26 then
-                                        TriggerServerEvent('qb-trucker:server:nano')
-                                    end
-                                    if CurrentBlip ~= nil then
-                                        RemoveBlip(CurrentBlip)
-                                        ClearAllBlipRoutes()
-                                        CurrentBlip = nil
-                                    end
-                                    CurrentLocation = nil
-                                    currentCount = 0
-                                    JobsDone = JobsDone + 1
-                                    getNewLocation()
-                                else
-                                    QBCore.Functions.Notify(Lang:t("mission.another_box"))
-                                end
-                            end, function() -- Cancel
-                                isWorking = false
-                                ClearPedTasks(PlayerPedId())
-                                QBCore.Functions.Notify(Lang:t("error.cancelled"), "error")
-                            end)
-                        end
-                    else
-                        DrawText3D(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z, Lang:t("info.deliver"))
-                    end
-                end
-            end
-            Wait(sleep)
-        end
-    end)
+RegisterNetEvent('qb-truckerjob:client:ShowMarker', function(active)
+    if PlayerJob.name == "trucker" then
+        showMarker = active
+    end
 end)
+
+RegisterNetEvent('qb-truckerjob:client:SetDelivering', function(active)
+    if PlayerJob.name == "trucker" then
+        Delivering = active
+    end
+end)
+
+
+
 
 RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
     local vehicleInfo = selectedVeh
@@ -398,7 +331,6 @@ RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
         TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
         SetVehicleEngineOn(veh, true, true)
         CurrentPlate = QBCore.Functions.GetPlate(veh)
-        CreateLocations()
         getNewLocation()
     end, coords, true)
 end)
@@ -449,5 +381,101 @@ RegisterNetEvent('qb-truckerjob:client:PaySlip', function()
 
 end)
 
--- Threads
+RegisterNetEvent('qb-trucker:client:GetInTrunk', function()
+    if not IsPedInAnyVehicle(PlayerPedId()) then
+        local pos = GetEntityCoords(PlayerPedId(), true)
+        local vehicle = GetVehiclePedIsIn(PlayerPedId(), true)
+        if isTruckerVehicle(vehicle) and CurrentPlate == QBCore.Functions.GetPlate(vehicle) then
+            local trunkpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
+            if #(pos - vector3(trunkpos.x, trunkpos.y, trunkpos.z)) < 1.5 and not isWorking then
+                isWorking = true
+                QBCore.Functions.Progressbar("work_carrybox", Lang:t("mission.take_box"), 2000, false, true, {
+                    disableMovement = true,
+                    disableCarMovement = true,
+                    disableMouse = false,
+                    disableCombat = true,
+                }, {
+                    animDict = "anim@gangops@facility@servers@",
+                    anim = "hotwire",
+                    flags = 16,
+                }, {}, {}, function() -- Done
+                    isWorking = false
+                    StopAnimTask(PlayerPedId(), "anim@gangops@facility@servers@", "hotwire", 1.0)
+                    TriggerEvent('animations:client:EmoteCommandStart', {"box"})
+                    hasBox = true
+                end, function() -- Cancel
+                    isWorking = false
+                    StopAnimTask(PlayerPedId(), "anim@gangops@facility@servers@", "hotwire", 1.0)
+                    QBCore.Functions.Notify(Lang:t("error.cancelled"), "error")
+                end)
+            end
+        end
+    end
+end)
 
+RegisterNetEvent('qb-trucker:client:Deliver', function()
+    isWorking = true
+    TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+    Wait(500)
+    TriggerEvent('animations:client:EmoteCommandStart', {"bumbin"})
+    QBCore.Functions.Progressbar("work_dropbox", Lang:t("mission.deliver_box"), 2000, false, true, {
+        disableMovement = true,
+        disableCarMovement = true,
+        disableMouse = false,
+        disableCombat = true,
+    }, {}, {}, {}, function() -- Done
+        isWorking = false
+        ClearPedTasks(PlayerPedId())
+        hasBox = false
+        currentCount = currentCount + 1
+        if currentCount == CurrentLocation.dropcount then
+            LocationsDone[#LocationsDone+1] = CurrentLocation.id
+            TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
+            QBCore.Functions.Notify(Lang:t("mission.goto_next_point"))
+            exports['qb-core']:HideText()
+            Delivering = false
+            showMarker = false
+            TriggerServerEvent('qb-trucker:server:nano')
+            if CurrentBlip ~= nil then
+                RemoveBlip(CurrentBlip)
+                ClearAllBlipRoutes()
+                CurrentBlip = nil
+            end
+            CurrentLocation.zoneCombo:destroy()
+            CurrentLocation = nil
+            currentCount = 0
+            JobsDone = JobsDone + 1
+            getNewLocation()
+        else
+            QBCore.Functions.Notify(Lang:t("mission.another_box"))
+        end
+    end, function() -- Cancel
+        isWorking = false
+        ClearPedTasks(PlayerPedId())
+        QBCore.Functions.Notify(Lang:t("error.cancelled"), "error")
+    end)
+
+end)
+
+-- Threads
+CreateThread(function()
+    local sleep
+    while true do
+        sleep = 1000
+        if showMarker then
+            DrawMarker(2, markerLocation.x, markerLocation.y, markerLocation.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, false, true, false, false, false)
+            sleep = 0
+        end
+        if Delivering then
+            if IsControlJustReleased(0, 38) then
+                if not hasBox then
+                    TriggerEvent('qb-trucker:client:GetInTrunk')
+                else
+                    TriggerEvent('qb-trucker:client:Deliver')
+                end
+            end
+            sleep = 0
+        end
+        Wait(sleep)
+    end
+end)

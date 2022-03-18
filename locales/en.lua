@@ -18,7 +18,7 @@ local Translations = {
         close_menu = "⬅ Close Menu",
     },
     mission = {
-        store_reached = "Store reached, get a box in the trunk and deliver",
+        store_reached = "Store reached, get a box in the trunk with [E] and deliver to marker",
         take_box = "Take A Box Of Products",
         deliver_box = "Deliver Box Of Products",
         another_box = "Get another Box Of Products",
