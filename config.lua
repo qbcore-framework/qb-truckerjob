@@ -1,6 +1,6 @@
 Config = {}
 
-Config.UseTarget = false
+Config.UseTarget = GetConvar('UseTarget', 'false')
 
 Config.BailPrice = 250
 
