@@ -4,10 +4,17 @@ game 'gta5'
 description 'QB-TruckerJob'
 version '1.0.0'
 
-shared_script 'config.lua'
+shared_scripts {
+	'@qb-core/shared/locale.lua',
+	'config.lua',
+	'locales/en.lua',
+}
 
 client_scripts {
-    'client/main.lua',
+	'@PolyZone/client.lua',
+	'@PolyZone/BoxZone.lua',
+	'@PolyZone/ComboZone.lua',
+    'client/main.lua'
 }
 
 server_script 'server/main.lua'
