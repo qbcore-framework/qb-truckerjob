@@ -54,7 +54,7 @@ end
 
 local function isTruckerVehicle(vehicle)
     local retval = false
-    for k, _ in pairs(Config.Vehicles) do
+    for k in pairs(Config.Vehicles) do
         if GetEntityModel(vehicle) == GetHashKey(k) then
             retval = true
         end
@@ -83,7 +83,7 @@ local function MenuGarage()
             isMenuHeader = true
         }
     }
-    for k, _ in pairs(Config.Vehicles) do
+    for k in pairs(Config.Vehicles) do
         truckMenu[#truckMenu+1] = {
             header = Config.Vehicles[k],
             params = {
