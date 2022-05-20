@@ -27,6 +27,7 @@ local Translations = {
     info = {
         deliver_e = "[E] - Deliver Products",
         deliver = "Deliver Products",
+        payslip = "Payslip"
     }
 }
 
