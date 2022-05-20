@@ -10,7 +10,6 @@ local currentCount = 0
 local CurrentPlate = nil
 local selectedVeh = nil
 local TruckVehBlip = nil
-local ThreadAlreadyRan = false
 local Delivering = false
 local showMarker = false
 local markerLocation
@@ -20,7 +19,7 @@ local markerLocation
 local function hasDoneLocation(locationId)
     local retval = false
     if LocationsDone ~= nil and next(LocationsDone) ~= nil then
-        for k, v in pairs(LocationsDone) do
+        for _, v in pairs(LocationsDone) do
             if v == locationId then
                 retval = true
             end
@@ -55,7 +54,7 @@ end
 
 local function isTruckerVehicle(vehicle)
     local retval = false
-    for k, v in pairs(Config.Vehicles) do
+    for k in pairs(Config.Vehicles) do
         if GetEntityModel(vehicle) == GetHashKey(k) then
             retval = true
         end
@@ -84,7 +83,7 @@ local function MenuGarage()
             isMenuHeader = true
         }
     }
-    for k, v in pairs(Config.Vehicles) do
+    for k in pairs(Config.Vehicles) do
         truckMenu[#truckMenu+1] = {
             header = Config.Vehicles[k],
             params = {
@@ -116,34 +115,34 @@ local function CreateZone(type, number)
     local coords
     local heading
     local boxName
-    local event 
+    local event
     local label
     local size
 
     if type == "main" then
         event = "qb-truckerjob:client:PaySlip"
         label = "Payslip"
-        coords = vector3(Config.Locations[type].coords.x, Config.Locations[type].coords.y, Config.Locations[type].coords.z) 
+        coords = vector3(Config.Locations[type].coords.x, Config.Locations[type].coords.y, Config.Locations[type].coords.z)
         heading = Config.Locations[type].coords.h
         boxName = Config.Locations[type].label
         size = 3
     elseif type == "vehicle" then
         event = "qb-truckerjob:client:Vehicle"
         label = "Vehicle"
-        coords = vector3(Config.Locations[type].coords.x, Config.Locations[type].coords.y, Config.Locations[type].coords.z) 
+        coords = vector3(Config.Locations[type].coords.x, Config.Locations[type].coords.y, Config.Locations[type].coords.z)
         heading = Config.Locations[type].coords.h
         boxName = Config.Locations[type].label
         size = 5
     elseif type == "stores" then
         event = "qb-truckerjob:client:Store"
         label = "Store"
-        coords = vector3(Config.Locations[type][number].coords.x, Config.Locations[type][number].coords.y, Config.Locations[type][number].coords.z) 
+        coords = vector3(Config.Locations[type][number].coords.x, Config.Locations[type][number].coords.y, Config.Locations[type][number].coords.z)
         heading = Config.Locations[type][number].coords.h
         boxName = Config.Locations[type][number].name
         size = 40
     end
 
-    if Config.UseTarget and type == "main"then    
+    if Config.UseTarget and type == "main"then
         exports['qb-target']:AddBoxZone(boxName, coords, size, size, {
             minZ = coords.z - 5.0,
             maxZ = coords.z + 5.0,
@@ -351,7 +350,7 @@ RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
                     RemoveBlip(CurrentBlip)
                     ClearAllBlipRoutes()
                     CurrentBlip = nil
-                end        
+                end
             else
                 QBCore.Functions.Notify(Lang:t("error.vehicle_not_correct"), 'error')
             end
