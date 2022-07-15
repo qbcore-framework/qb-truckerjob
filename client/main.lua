@@ -31,10 +31,6 @@ local function getNextLocation()
     local current = 1
 
     if Config.FixedLocation then
-        while hasDoneLocation(current) do
-            current = math.random(#Config.Locations["stores"])
-        end
-    else
         local pos = GetEntityCoords(PlayerPedId(), true)
         local dist = nil
         for k, v in pairs(Config.Locations["stores"]) do
@@ -48,6 +44,10 @@ local function getNextLocation()
                 current = k
                 dist = dist2
             end
+        end
+    else
+        while hasDoneLocation(current) do
+            current = math.random(#Config.Locations["stores"])
         end
     end
 
