@@ -3,6 +3,7 @@ Config = {}
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
 
 Config.BailPrice = 250
+Config.FixedLocation = false
 
 Config.Locations = {
     ["main"] = {
