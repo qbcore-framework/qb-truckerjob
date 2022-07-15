@@ -278,19 +278,19 @@ end
 local function GetInTrunk()
     local ped = PlayerPedId()
     if IsPedInAnyVehicle(ped, false) then
-        return QBCore.Functions.Notify("error.get_out_vehicle", "error")
+        return QBCore.Functions.Notify(Lang:t("error.get_out_vehicle"), "error")
     end
     local pos = GetEntityCoords(ped, true)
     local vehicle = GetVehiclePedIsIn(ped, true)
     if not isTruckerVehicle(vehicle) or CurrentPlate ~= QBCore.Functions.GetPlate(vehicle) then
-        return QBCore.Functions.Notify("error.vehicle_not_correct", "error")
+        return QBCore.Functions.Notify(Lang:t("error.vehicle_not_correct"), "error")
     end
     if not BackDoorsOpen(vehicle) then
         return QBCore.Functions.Notify(Lang:t("error.backdoors_not_open"), "error")
     end
     local trunkpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
     if #(pos - vector3(trunkpos.x, trunkpos.y, trunkpos.z)) > 1.5 then
-        return QBCore.Functions.Notify("error.too_far_from_trunk", "error")
+        return QBCore.Functions.Notify(Lang:t("error.too_far_from_trunk"), "error")
     end
     if isWorking then return end
     isWorking = true
