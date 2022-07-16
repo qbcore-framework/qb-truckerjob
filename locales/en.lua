@@ -7,7 +7,8 @@ local Translations = {
         no_work_done = "You haven't done any work yet..",
         backdoors_not_open = "The backdoors of the vehicle aren't open",
         get_out_vehicle = "You need to step out of the vehicle to perform this action",
-        too_far_from_trunk = "You need to grab the boxes from the trunk of your vehicle"
+        too_far_from_trunk = "You need to grab the boxes from the trunk of your vehicle",
+        too_far_from_delivery = "You need to be closer to the delivery point"
     },
     success = {
         paid_with_cash = "$%{value} Deposit Paid With Cash",
