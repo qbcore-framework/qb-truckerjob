@@ -272,7 +272,7 @@ local function CreateElements()
 end
 
 local function BackDoorsOpen(vehicle) -- This is hardcoded for the rumpo currently
-    return IsVehicleDoorFullyOpen(vehicle, 2) and IsVehicleDoorFullyOpen(vehicle, 3)
+    return GetVehicleDoorAngleRatio(vehicle, 2) > 0.0 and GetVehicleDoorAngleRatio(vehicle, 3) > 0.0
 end
 
 local function GetInTrunk()
@@ -479,7 +479,11 @@ CreateThread(function()
                 if not hasBox then
                     GetInTrunk()
                 else
-                    Deliver()
+                    if #(GetEntityCoords(PlayerPedId()) - markerLocation) < 5 then
+                        Deliver()
+                    else
+                        QBCore.Functions.Notify('You are too far away from the delivery point.', 'error')
+                    end
                 end
             end
             sleep = 0
