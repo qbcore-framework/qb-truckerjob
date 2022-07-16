@@ -482,7 +482,7 @@ CreateThread(function()
                     if #(GetEntityCoords(PlayerPedId()) - markerLocation) < 5 then
                         Deliver()
                     else
-                        QBCore.Functions.Notify('You are too far away from the delivery point.', 'error')
+                        QBCore.Functions.Notify(Lang:t("error.too_far_from_delivery"), "error")
                     end
                 end
             end
