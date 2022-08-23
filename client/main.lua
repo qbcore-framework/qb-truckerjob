@@ -10,6 +10,7 @@ local currentCount = 0
 local CurrentPlate = nil
 local selectedVeh = nil
 local TruckVehBlip = nil
+local TruckerBlip = nil
 local Delivering = false
 local showMarker = false
 local markerLocation
@@ -66,8 +67,10 @@ end
 local function RemoveTruckerBlips()
     if TruckVehBlip then
         RemoveBlip(TruckVehBlip)
+        RemoveBlip(TruckerBlip)
 	    ClearAllBlipRoutes()
         TruckVehBlip = nil
+        TruckerBlip = nil
     end
 
     if CurrentBlip then
@@ -257,7 +260,7 @@ local function CreateElements()
     AddTextComponentSubstringPlayerName(Config.Locations["vehicle"].label)
     EndTextCommandSetBlipName(TruckVehBlip)
 
-    local TruckerBlip = AddBlipForCoord(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)
+    TruckerBlip = AddBlipForCoord(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)
     SetBlipSprite(TruckerBlip, 479)
     SetBlipDisplay(TruckerBlip, 4)
     SetBlipScale(TruckerBlip, 0.6)
