@@ -85,7 +85,7 @@ local function RemoveTruckerBlips()
     if CurrentBlip then
         RemoveBlip(CurrentBlip)
         CurrentBlip = nil
-    end 
+    end
 end
 
 local function MenuGarage()
