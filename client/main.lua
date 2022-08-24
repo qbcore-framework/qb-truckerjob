@@ -67,9 +67,13 @@ end
 local function RemoveTruckerBlips()
     if TruckVehBlip then
         RemoveBlip(TruckVehBlip)
-        RemoveBlip(TruckerBlip)
 	    ClearAllBlipRoutes()
         TruckVehBlip = nil
+    end
+
+    if TruckerBlip then
+        RemoveBlip(TruckerBlip)
+        ClearAllBlipRoutes()
         TruckerBlip = nil
     end
 
