@@ -341,7 +341,7 @@ local function Deliver()
 
         if currentCount == CurrentLocation.dropcount then
             LocationsDone[#LocationsDone+1] = CurrentLocation.id
-            TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store) 
+            TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
             exports['qb-core']:HideText()
             Delivering = false
             showMarker = false
