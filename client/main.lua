@@ -14,8 +14,14 @@ local Delivering = false
 local showMarker = false
 local markerLocation
 local zoneCombo = nil
+local returningToStation = false
 
 -- Functions
+
+local function returnToStation()
+    SetBlipRoute(TruckVehBlip, true)
+    returningToStation = true
+end
 
 local function hasDoneLocation(locationId)
     if LocationsDone and table.type(LocationsDone) ~= "empty" then
@@ -334,7 +340,6 @@ local function Deliver()
         if currentCount == CurrentLocation.dropcount then
             LocationsDone[#LocationsDone+1] = CurrentLocation.id
             TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
-            QBCore.Functions.Notify(Lang:t("mission.goto_next_point"))
             exports['qb-core']:HideText()
             Delivering = false
             showMarker = false
@@ -348,7 +353,13 @@ local function Deliver()
             CurrentLocation = nil
             currentCount = 0
             JobsDone = JobsDone + 1
-            getNewLocation()
+            if JobsDone == Config.MaxDrops then
+                QBCore.Functions.Notify(Lang:t("mission.return_to_station"))
+                returnToStation()
+            else
+                QBCore.Functions.Notify(Lang:t("mission.goto_next_point"))
+                getNewLocation()
+            end
         else
             QBCore.Functions.Notify(Lang:t("mission.another_box"))
         end
@@ -443,6 +454,11 @@ RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
                     RemoveBlip(CurrentBlip)
                     ClearAllBlipRoutes()
                     CurrentBlip = nil
+                end
+                if returningToStation or CurrentLocation then
+                    ClearAllBlipRoutes()
+                    returningToStation = false
+                    QBCore.Functions.Notify(Lang:t("mission.job_completed"), "success")
                 end
             else
                 QBCore.Functions.Notify(Lang:t("error.vehicle_not_correct"), 'error')
