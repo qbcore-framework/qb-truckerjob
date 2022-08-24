@@ -27,6 +27,8 @@ local Translations = {
         deliver_box = "Deliver Box Of Products",
         another_box = "Get another Box Of Products",
         goto_next_point = "You Have Delivered All Products, To The Next Point",
+        return_to_station = "You Have Delivered All Products, Return to Station",
+        job_completed = "You Have Completed Your Route, Please Collect Your Pay Cheque"
     },
     info = {
         deliver_e = "~g~E~w~ - Deliver Products",
