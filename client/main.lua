@@ -73,7 +73,7 @@ end
 local function RemoveTruckerBlips()
     if TruckVehBlip then
         RemoveBlip(TruckVehBlip)
-	    ClearAllBlipRoutes()
+        ClearAllBlipRoutes()
         TruckVehBlip = nil
     end
 
@@ -85,7 +85,7 @@ local function RemoveTruckerBlips()
 
     if CurrentBlip then
         RemoveBlip(CurrentBlip)
-	    ClearAllBlipRoutes()
+        ClearAllBlipRoutes()
         CurrentBlip = nil
     end
 end
@@ -253,7 +253,7 @@ local function getNewLocation()
         QBCore.Functions.Notify(Lang:t("success.payslip_time"))
         if CurrentBlip ~= nil then
             RemoveBlip(CurrentBlip)
-	        ClearAllBlipRoutes()
+            ClearAllBlipRoutes()
             CurrentBlip = nil
         end
     end
