@@ -71,23 +71,21 @@ local function isTruckerVehicle(vehicle)
 end
 
 local function RemoveTruckerBlips()
+    ClearAllBlipRoutes()
     if TruckVehBlip then
         RemoveBlip(TruckVehBlip)
-        ClearAllBlipRoutes()
         TruckVehBlip = nil
     end
 
     if TruckerBlip then
         RemoveBlip(TruckerBlip)
-        ClearAllBlipRoutes()
         TruckerBlip = nil
     end
 
     if CurrentBlip then
         RemoveBlip(CurrentBlip)
-        ClearAllBlipRoutes()
         CurrentBlip = nil
-    end
+    end 
 end
 
 local function MenuGarage()
