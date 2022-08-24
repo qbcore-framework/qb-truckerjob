@@ -18,7 +18,6 @@ local returningToStation = false
 -- Functions
 
 local function returnToStation()
-    JobsDone = 0
     SetBlipRoute(TruckVehBlip, true)
     returningToStation = true
 end
