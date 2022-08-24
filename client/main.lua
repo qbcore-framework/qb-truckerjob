@@ -13,8 +13,15 @@ local TruckVehBlip = nil
 local Delivering = false
 local showMarker = false
 local markerLocation
+local returningToStation = false
 
 -- Functions
+
+local function returnToStation()
+    JobsDone = 0
+    SetBlipRoute(TruckVehBlip, true)
+    returningToStation = true
+end
 
 local function hasDoneLocation(locationId)
     if LocationsDone and table.type(LocationsDone) ~= "empty" then
@@ -330,10 +337,11 @@ local function Deliver()
         ClearPedTasks(PlayerPedId())
         hasBox = false
         currentCount = currentCount + 1
+        
+
         if currentCount == CurrentLocation.dropcount then
             LocationsDone[#LocationsDone+1] = CurrentLocation.id
-            TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
-            QBCore.Functions.Notify(Lang:t("mission.goto_next_point"))
+            TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store) 
             exports['qb-core']:HideText()
             Delivering = false
             showMarker = false
@@ -347,7 +355,13 @@ local function Deliver()
             CurrentLocation = nil
             currentCount = 0
             JobsDone = JobsDone + 1
-            getNewLocation()
+            if JobsDone == Config.MaxDrops then
+                QBCore.Functions.Notify(Lang:t("mission.return_to_station"))
+                returnToStation()
+            else
+                QBCore.Functions.Notify(Lang:t("mission.goto_next_point"))
+                getNewLocation()
+            end
         else
             QBCore.Functions.Notify(Lang:t("mission.another_box"))
         end
@@ -397,6 +411,7 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     PlayerJob = JobInfo
     if OldPlayerJob == "trucker" then
         RemoveTruckerBlips()
+
     elseif PlayerJob.name == "trucker" then
         CreateElements()
     end
@@ -436,6 +451,11 @@ RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
                     RemoveBlip(CurrentBlip)
                     ClearAllBlipRoutes()
                     CurrentBlip = nil
+                end
+                if returningToStation or CurrentLocation then
+                    ClearAllBlipRoutes()
+                    returningToStation = false
+                    QBCore.Functions.Notify(Lang:t("mission.job_completed"), "success")
                 end
             else
                 QBCore.Functions.Notify(Lang:t("error.vehicle_not_correct"), 'error')
