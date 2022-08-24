@@ -337,8 +337,6 @@ local function Deliver()
         ClearPedTasks(PlayerPedId())
         hasBox = false
         currentCount = currentCount + 1
-        
-
         if currentCount == CurrentLocation.dropcount then
             LocationsDone[#LocationsDone+1] = CurrentLocation.id
             TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
@@ -411,7 +409,6 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     PlayerJob = JobInfo
     if OldPlayerJob == "trucker" then
         RemoveTruckerBlips()
-
     elseif PlayerJob.name == "trucker" then
         CreateElements()
     end
