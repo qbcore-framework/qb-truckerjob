@@ -13,6 +13,7 @@ local TruckVehBlip = nil
 local Delivering = false
 local showMarker = false
 local markerLocation
+local zoneCombo = nil
 
 -- Functions
 
@@ -175,7 +176,7 @@ local function CreateZone(type, number)
                 heading = heading,
             })
 
-        local zoneCombo = ComboZone:Create({zone}, {name = boxName, debugPoly = false})
+        zoneCombo = ComboZone:Create({zone}, {name = boxName, debugPoly = false})
         zoneCombo:onPlayerInOut(function(isPointInside)
             if isPointInside then
                 if type == "main" then
@@ -397,6 +398,10 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     PlayerJob = JobInfo
     if OldPlayerJob == "trucker" then
         RemoveTruckerBlips()
+        zoneCombo:destroy()
+        exports['qb-core']:HideText()
+        Delivering = false
+        showMarker = false
     elseif PlayerJob.name == "trucker" then
         CreateElements()
     end
@@ -409,6 +414,8 @@ RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
         local veh = NetToVeh(netId)
         SetVehicleNumberPlateText(veh, "TRUK"..tostring(math.random(1000, 9999)))
         SetEntityHeading(veh, coords.w)
+        SetVehicleLivery(veh, 1)
+        SetVehicleColours(veh, 122, 122)
         exports['LegacyFuel']:SetFuel(veh, 100.0)
         exports['qb-menu']:closeMenu()
         TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
