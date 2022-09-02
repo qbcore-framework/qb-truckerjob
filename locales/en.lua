@@ -13,7 +13,7 @@ local Translations = {
     success = {
         paid_with_cash = "$%{value} Deposit Paid With Cash",
         paid_with_bank = "$%{value} Deposit Paid From Bank",
-        refund_to_cash = "$%{value} Deposit Paid With Cash",
+        refund_to_cash = "$%{value} Deposit Returned To You With Cash",
         you_earned = "You Earned $%{value}",
         payslip_time = "You Went To All The Shops .. Time For Your Payslip!",
     },
