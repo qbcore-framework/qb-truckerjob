@@ -426,8 +426,7 @@ end)
 RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
     local vehicleInfo = selectedVeh
     local coords = Config.Locations["vehicle"].coords
-    QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
-        local veh = NetToVeh(netId)
+    QBCore.Functions.SpawnVehicle(vehicleInfo, function(veh)
         SetVehicleNumberPlateText(veh, "TRUK"..tostring(math.random(1000, 9999)))
         SetEntityHeading(veh, coords.w)
         SetVehicleLivery(veh, 1)
@@ -440,7 +439,7 @@ RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
         SetVehicleEngineOn(veh, true, true)
         CurrentPlate = QBCore.Functions.GetPlate(veh)
         getNewLocation()
-    end, vehicleInfo, coords, true)
+    end, coords, true)
 end)
 
 RegisterNetEvent('qb-trucker:client:TakeOutVehicle', function(data)
