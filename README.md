@@ -1,6 +1,19 @@
 # qb-truckerjob
 Trucker Job For QB-Core
 
+# Reference Material
+
+JobRep has everything to do with the meta data for the job reputation. The higher the reputation the more demanding and more lucrative jobs the trucker can take on.
+
+The cargo doors are checked if they are open.
+These numbers coincide with the doors that you will find in the cargo door table.
+0 = Driver Front Door
+1 = Passenger Front Door
+2 = Driver Rear Door (Usually Rear Driver Cargo Door)
+3 = Passenger Rear Door (Usually Rear Passenger Cargo Door)
+4 = Hood / Bonett
+5 = Trunk / Boot (usually the sliding or drop down single rear door)
+
 # License
 
     QBCore Framework

@@ -38,10 +38,10 @@ end
 local function getNextLocation()
     local current = 1
 
-    if Config.FixedLocation then
+    if Config.TruckerJobFixedLocation then
         local pos = GetEntityCoords(PlayerPedId(), true)
         local dist = nil
-        for k, v in pairs(Config.Locations["stores"]) do
+        for k, v in pairs(Config.TruckerJobLocations["stores"]) do
             local dist2 = #(pos - vector3(v.coords.x, v.coords.y, v.coords.z))
             if dist then
                 if dist2 < dist then
@@ -55,7 +55,7 @@ local function getNextLocation()
         end
     else
         while hasDoneLocation(current) do
-            current = math.random(#Config.Locations["stores"])
+            current = math.random(#Config.TruckerJobLocations["stores"])
         end
     end
 
@@ -63,7 +63,7 @@ local function getNextLocation()
 end
 
 local function isTruckerVehicle(vehicle)
-    for k in pairs(Config.Vehicles) do
+    for k in pairs(Config.TruckerJobVehicles) do
         if GetEntityModel(vehicle) == joaat(k) then
             return true
         end
@@ -71,6 +71,14 @@ local function isTruckerVehicle(vehicle)
     return false
 end
 
+local function getTruckerVehicle(vehicle)
+    for k in pairs(Config.TruckerJobVehicles) do
+        if GetEntityModel(vehicle) == joaat(k) then
+            return k
+        end
+    end
+    return false
+end
 local function RemoveTruckerBlips()
     ClearAllBlipRoutes()
     if TruckVehBlip then
@@ -90,33 +98,33 @@ local function RemoveTruckerBlips()
 end
 
 local function MenuGarage()
-    local truckMenu = {
-        {
-            header = Lang:t("menu.header"),
-            isMenuHeader = true
-        }
-    }
-    for k in pairs(Config.Vehicles) do
-        truckMenu[#truckMenu+1] = {
-            header = Config.Vehicles[k],
-            params = {
-                event = "qb-trucker:client:TakeOutVehicle",
-                args = {
-                    vehicle = k
-                }
+--    if PlayerData.metadata.jobrep.trucker >= v.jobrep then
+        local truckMenu = {
+            {
+                header = Lang:t("menu.header"),
+                isMenuHeader = true
             }
         }
-    end
-
-    truckMenu[#truckMenu+1] = {
-        header = Lang:t("menu.close_menu"),
-        txt = "",
-        params = {
+        for k,v in pairs(Config.TruckerJobVehicles) do
+            truckMenu[#truckMenu+1] = {
+             header = v.label,
+             params = {
+                 event = "qb-trucker:client:TakeOutVehicle",
+                 args = {
+                     vehicle = k
+                   }
+                }
+            }
+        end
+        truckMenu[#truckMenu+1] = {
+            header = Lang:t("menu.close_menu"),
+            txt = "",
+            params = {
             event = "qb-menu:client:closeMenu"
         }
-
-    }
-    exports['qb-menu']:openMenu(truckMenu)
+        }
+        exports['qb-menu']:openMenu(truckMenu)
+--    end
 end
 
 local function SetDelivering(active)
@@ -140,23 +148,37 @@ local function CreateZone(type, number)
     if type == "main" then
         event = "qb-truckerjob:client:PaySlip"
         label = "Payslip"
-        coords = vector3(Config.Locations[type].coords.x, Config.Locations[type].coords.y, Config.Locations[type].coords.z)
-        heading = Config.Locations[type].coords.h
-        boxName = Config.Locations[type].label
+        coords = vector3(Config.TruckerJobLocations[type].coords.x, Config.TruckerJobLocations[type].coords.y, Config.TruckerJobLocations[type].coords.z)
+        heading = Config.TruckerJobLocations[type].coords.h
+        boxName = Config.TruckerJobLocations[type].label
         size = 3
     elseif type == "vehicle" then
         event = "qb-truckerjob:client:Vehicle"
         label = "Vehicle"
-        coords = vector3(Config.Locations[type].coords.x, Config.Locations[type].coords.y, Config.Locations[type].coords.z)
-        heading = Config.Locations[type].coords.h
-        boxName = Config.Locations[type].label
-        size = 5
+        coords = vector3(Config.TruckerJobLocations[type].coords.x, Config.TruckerJobLocations[type].coords.y, Config.TruckerJobLocations[type].coords.z)
+        heading = Config.TruckerJobLocations[type].coords.h
+        boxName = Config.TruckerJobLocations[type].label
+        size = 10
     elseif type == "stores" then
         event = "qb-truckerjob:client:Store"
         label = "Store"
-        coords = vector3(Config.Locations[type][number].coords.x, Config.Locations[type][number].coords.y, Config.Locations[type][number].coords.z)
-        heading = Config.Locations[type][number].coords.h
-        boxName = Config.Locations[type][number].name
+        coords = vector3(Config.TruckerJobLocations[type][number].coords.x, Config.TruckerJobLocations[type][number].coords.y, Config.TruckerJobLocations[type][number].coords.z)
+        heading = Config.TruckerJobLocations[type][number].coords.h
+        boxName = Config.TruckerJobLocations[type][number].name
+        size = 40
+    elseif type == "line-haul" then
+        event = "qb-truckerjob:client:Line-Haul"
+        label = "Line-Haul"
+        coords = vector3(Config.TruckerJobLocations[type][number].coords.x, Config.TruckerJobLocations[type][number].coords.y, Config.TruckerJobLocations[type][number].coords.z)
+        heading = Config.TruckerJobLocations[type][number].coords.h
+        boxName = Config.TruckerJobLocations[type][number].name
+        size = 40
+    elseif type == "fuel-delivery" then
+        event = "qb-truckerjob:client:Line-Haul"
+        label = "Fuel-Haul"
+        coords = vector3(Config.TruckerJobLocations[type][number].coords.x, Config.TruckerJobLocations[type][number].coords.y, Config.TruckerJobLocations[type][number].coords.z)
+        heading = Config.TruckerJobLocations[type][number].coords.h
+        boxName = Config.TruckerJobLocations[type][number].name
         size = 40
     end
 
@@ -238,10 +260,10 @@ local function getNewLocation()
         CurrentLocation = {}
         CurrentLocation.id = location
         CurrentLocation.dropcount = math.random(1, 3)
-        CurrentLocation.store = Config.Locations["stores"][location].name
-        CurrentLocation.x = Config.Locations["stores"][location].coords.x
-        CurrentLocation.y = Config.Locations["stores"][location].coords.y
-        CurrentLocation.z = Config.Locations["stores"][location].coords.z
+        CurrentLocation.store = Config.TruckerJobLocations["stores"][location].name
+        CurrentLocation.x = Config.TruckerJobLocations["stores"][location].coords.x
+        CurrentLocation.y = Config.TruckerJobLocations["stores"][location].coords.y
+        CurrentLocation.z = Config.TruckerJobLocations["stores"][location].coords.z
         CreateZone("stores", location)
 
         CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
@@ -259,32 +281,46 @@ local function getNewLocation()
 end
 
 local function CreateElements()
-    TruckVehBlip = AddBlipForCoord(Config.Locations["vehicle"].coords.x, Config.Locations["vehicle"].coords.y, Config.Locations["vehicle"].coords.z)
+    TruckVehBlip = AddBlipForCoord(Config.TruckerJobLocations["vehicle"].coords.x, Config.TruckerJobLocations["vehicle"].coords.y, Config.TruckerJobLocations["vehicle"].coords.z)
     SetBlipSprite(TruckVehBlip, 326)
     SetBlipDisplay(TruckVehBlip, 4)
     SetBlipScale(TruckVehBlip, 0.6)
     SetBlipAsShortRange(TruckVehBlip, true)
     SetBlipColour(TruckVehBlip, 5)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentSubstringPlayerName(Config.Locations["vehicle"].label)
+    AddTextComponentSubstringPlayerName(Config.TruckerJobLocations["vehicle"].label)
     EndTextCommandSetBlipName(TruckVehBlip)
 
-    TruckerBlip = AddBlipForCoord(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)
+    TruckerBlip = AddBlipForCoord(Config.TruckerJobLocations["main"].coords.x, Config.TruckerJobLocations["main"].coords.y, Config.TruckerJobLocations["main"].coords.z)
     SetBlipSprite(TruckerBlip, 479)
     SetBlipDisplay(TruckerBlip, 4)
     SetBlipScale(TruckerBlip, 0.6)
     SetBlipAsShortRange(TruckerBlip, true)
     SetBlipColour(TruckerBlip, 5)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentSubstringPlayerName(Config.Locations["main"].label)
+    AddTextComponentSubstringPlayerName(Config.TruckerJobLocations["main"].label)
     EndTextCommandSetBlipName(TruckerBlip)
 
     CreateZone("main")
     CreateZone("vehicle")
 end
 
-local function BackDoorsOpen(vehicle) -- This is hardcoded for the rumpo currently
-    return GetVehicleDoorAngleRatio(vehicle, 2) > 0.0 and GetVehicleDoorAngleRatio(vehicle, 3) > 0.0
+local function TableCount(tbl)
+    local cnt = 0
+    for _ in pairs(tbl) do cnt = cnt + 1 end
+    return cnt
+end
+
+local function BackDoorsOpen(vehicle)
+    local tv = getTruckerVehicle(vehicle)
+    local cnt = TableCount(Config.TruckerJobVehicles[tv].cargodoors)
+    if isTruckerVehicle(vehicle) then
+        if cnt == 2 then
+            return GetVehicleDoorAngleRatio(vehicle, Config.TruckerJobVehicles[tv].cargodoors[0]) > 0.0 and GetVehicleDoorAngleRatio(vehicle, Config.TruckerJobVehicles[tv].cargodoors[1]) > 0.0
+        elseif cnt == 1 then
+            return GetVehicleDoorAngleRatio(vehicle, Config.TruckerJobVehicles[tv].cargodoors[0]) > 0.0
+        end
+    end
 end
 
 local function GetInTrunk()
@@ -294,6 +330,7 @@ local function GetInTrunk()
     end
     local pos = GetEntityCoords(ped, true)
     local vehicle = GetVehiclePedIsIn(ped, true)
+    local tv = getTruckerVehicle(vehicle)
     if not isTruckerVehicle(vehicle) or CurrentPlate ~= QBCore.Functions.GetPlate(vehicle) then
         return QBCore.Functions.Notify(Lang:t("error.vehicle_not_correct"), "error")
     end
@@ -301,7 +338,7 @@ local function GetInTrunk()
         return QBCore.Functions.Notify(Lang:t("error.backdoors_not_open"), "error")
     end
     local trunkpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
-    if #(pos - vector3(trunkpos.x, trunkpos.y, trunkpos.z)) > 1.5 then
+    if #(pos - vector3(trunkpos.x, trunkpos.y, trunkpos.z)) > Config.TruckerJobVehicles[tv].trunkpos then
         return QBCore.Functions.Notify(Lang:t("error.too_far_from_trunk"), "error")
     end
     if isWorking then return end
@@ -358,7 +395,7 @@ local function Deliver()
             CurrentLocation = nil
             currentCount = 0
             JobsDone = JobsDone + 1
-            if JobsDone == Config.MaxDrops then
+            if JobsDone == Config.TruckerJobMaxDrops then
                 QBCore.Functions.Notify(Lang:t("mission.return_to_station"))
                 returnToStation()
             else
@@ -398,6 +435,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     JobsDone = 0
     if PlayerJob.name ~= "trucker" then return end
     CreateElements()
+    TriggerServerEvent('qb-shops:server:SetShopList')
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
@@ -425,7 +463,7 @@ end)
 
 RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
     local vehicleInfo = selectedVeh
-    local coords = Config.Locations["vehicle"].coords
+    local coords = Config.TruckerJobLocations["vehicle"].coords
     QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
         local veh = NetToVeh(netId)
         SetVehicleNumberPlateText(veh, "TRUK"..tostring(math.random(1000, 9999)))
@@ -480,7 +518,7 @@ RegisterNetEvent('qb-truckerjob:client:PaySlip', function()
     if JobsDone > 0 then
         TriggerServerEvent("qb-trucker:server:01101110", JobsDone)
         JobsDone = 0
-        if #LocationsDone == #Config.Locations["stores"] then
+        if #LocationsDone == #Config.TruckerJobLocations["stores"] then
             LocationsDone = {}
         end
         if CurrentBlip ~= nil then
@@ -493,8 +531,13 @@ RegisterNetEvent('qb-truckerjob:client:PaySlip', function()
     end
 end)
 
+RegisterNetEvent('qb-truckerjob:client:SetShopList', function(shoplist)
+    Config.TruckerJobLocations["stores"] = shoplist
+end)
 -- Threads
-
+CreateThread(function()
+    TriggerServerEvent('qb-shops:server:SetShopList')
+end)
 CreateThread(function()
     local sleep
     while true do
