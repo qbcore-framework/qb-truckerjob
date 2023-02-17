@@ -1,6 +1,10 @@
 # qb-truckerjob
 Trucker Job For QB-Core
 
+# Notice
+
+You must I repeat MUST use the latest version of qb-shops with this resource!
+
 # Reference Material
 
 JobRep has everything to do with the meta data for the job reputation. The higher the reputation the more demanding and more lucrative jobs the trucker can take on.
