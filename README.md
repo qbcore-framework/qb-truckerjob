@@ -1,9 +1,9 @@
 # qb-truckerjob
 Trucker Job For QB-Core
 
-# Notice
+# Notice - Stay updated
 
-You must I repeat MUST use the latest version of qb-shops with this resource!
+You must ensure [QB-Shops](https://github.com/qbcore-framework/qb-shops) is kept up to date with this resource!
 
 # Reference Material
 
