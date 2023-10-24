@@ -98,33 +98,33 @@ local function RemoveTruckerBlips()
 end
 
 local function MenuGarage()
---    if PlayerData.metadata.jobrep.trucker >= v.jobrep then
-        local truckMenu = {
-            {
-                header = Lang:t("menu.header"),
-                isMenuHeader = true
-            }
+    --    if PlayerData.metadata.jobrep.trucker >= v.jobrep then
+    local truckMenu = {
+        {
+            header = Lang:t("menu.header"),
+            isMenuHeader = true
         }
-        for k,v in pairs(Config.TruckerJobVehicles) do
-            truckMenu[#truckMenu+1] = {
-             header = v.label,
-             params = {
-                 event = "qb-trucker:client:TakeOutVehicle",
-                 args = {
-                     vehicle = k
-                   }
+    }
+    for k, v in pairs(Config.TruckerJobVehicles) do
+        truckMenu[#truckMenu + 1] = {
+            header = v.label,
+            params = {
+                event = "qb-trucker:client:TakeOutVehicle",
+                args = {
+                    vehicle = k
                 }
             }
-        end
-        truckMenu[#truckMenu+1] = {
-            header = Lang:t("menu.close_menu"),
-            txt = "",
-            params = {
+        }
+    end
+    truckMenu[#truckMenu + 1] = {
+        header = Lang:t("menu.close_menu"),
+        txt = "",
+        params = {
             event = "qb-menu:client:closeMenu"
         }
-        }
-        exports['qb-menu']:openMenu(truckMenu)
---    end
+    }
+    exports['qb-menu']:openMenu(truckMenu)
+    --    end
 end
 
 local function SetDelivering(active)
@@ -209,7 +209,7 @@ local function CreateZone(type, number)
                 heading = heading,
             })
 
-        zoneCombo = ComboZone:Create({zone}, {name = boxName, debugPoly = false})
+        zoneCombo = ComboZone:Create({ zone }, { name = boxName, debugPoly = false })
         zoneCombo:onPlayerInOut(function(isPointInside)
             if isPointInside then
                 if type == "main" then
@@ -239,7 +239,7 @@ local function CreateZone(type, number)
                     heading = heading,
                 })
 
-            local zoneCombodel = ComboZone:Create({zonedel}, {name = boxName, debugPoly = false})
+            local zoneCombodel = ComboZone:Create({ zonedel }, { name = boxName, debugPoly = false })
             zoneCombodel:onPlayerInOut(function(isPointInside)
                 if isPointInside then
                     markerLocation = coords
@@ -355,7 +355,6 @@ local function GetInTrunk()
     }, {}, {}, function() -- Done
         isWorking = false
         StopAnimTask(ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
-        TriggerEvent('animations:client:EmoteCommandStart', {"box"})
         hasBox = true
     end, function() -- Cancel
         isWorking = false
@@ -366,9 +365,8 @@ end
 
 local function Deliver()
     isWorking = true
-    TriggerEvent('animations:client:EmoteCommandStart', {"c"})
     Wait(500)
-    TriggerEvent('animations:client:EmoteCommandStart', {"bumbin"})
+    TaskStartScenarioInPlace(PlayerPedId(), "PROP_HUMAN_BUM_BIN", 0, true)
     QBCore.Functions.Progressbar("work_dropbox", Lang:t("mission.deliver_box"), 2000, false, true, {
         disableMovement = true,
         disableCarMovement = true,
@@ -380,7 +378,7 @@ local function Deliver()
         hasBox = false
         currentCount = currentCount + 1
         if currentCount == CurrentLocation.dropcount then
-            LocationsDone[#LocationsDone+1] = CurrentLocation.id
+            LocationsDone[#LocationsDone + 1] = CurrentLocation.id
             TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
             exports['qb-core']:HideText()
             Delivering = false
@@ -466,7 +464,7 @@ RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
     local coords = Config.TruckerJobLocations["vehicle"].coords
     QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
         local veh = NetToVeh(netId)
-        SetVehicleNumberPlateText(veh, "TRUK"..tostring(math.random(1000, 9999)))
+        SetVehicleNumberPlateText(veh, "TRUK" .. tostring(math.random(1000, 9999)))
         SetEntityHeading(veh, coords.w)
         SetVehicleLivery(veh, 1)
         SetVehicleColours(veh, 122, 122)
