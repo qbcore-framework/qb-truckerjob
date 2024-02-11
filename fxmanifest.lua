@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 author 'Kakarot'
-description 'Allows players to restock stores for money'
+description 'Allows players to deliver packages to stores for money while also re-stocking the store'
 version '1.2.0'
 
 shared_scripts {
