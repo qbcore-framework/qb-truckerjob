@@ -311,14 +311,18 @@ local function TableCount(tbl)
     return cnt
 end
 
-local function BackDoorsOpen(vehicle)
+local function getBackDoorsStatus(vehicle)
     local tv = getTruckerVehicle(vehicle)
     local cnt = TableCount(Config.TruckerJobVehicles[tv].cargodoors)
     if isTruckerVehicle(vehicle) then
+        if IsVehicleDoorDamaged(vehicle, Config.TruckerJobVehicles[tv].cargodoors[0]) or IsVehicleDoorDamaged(vehicle, Config.TruckerJobVehicles[tv].cargodoors[1]) then
+            return 'BROKEN'
+        end
+
         if cnt == 2 then
-            return GetVehicleDoorAngleRatio(vehicle, Config.TruckerJobVehicles[tv].cargodoors[0]) > 0.0 and GetVehicleDoorAngleRatio(vehicle, Config.TruckerJobVehicles[tv].cargodoors[1]) > 0.0
+            return GetVehicleDoorAngleRatio(vehicle, Config.TruckerJobVehicles[tv].cargodoors[0]) > 0.0 and GetVehicleDoorAngleRatio(vehicle, Config.TruckerJobVehicles[tv].cargodoors[1]) > 0.0 and 'OPEN' or 'CLOSED'
         elseif cnt == 1 then
-            return GetVehicleDoorAngleRatio(vehicle, Config.TruckerJobVehicles[tv].cargodoors[0]) > 0.0
+            return GetVehicleDoorAngleRatio(vehicle, Config.TruckerJobVehicles[tv].cargodoors[0]) > 0.0 and 'OPEN' or 'CLOSED'
         end
     end
 end
@@ -331,12 +335,18 @@ local function GetInTrunk()
     local pos = GetEntityCoords(ped, true)
     local vehicle = GetVehiclePedIsIn(ped, true)
     local tv = getTruckerVehicle(vehicle)
+    local doorStatus = getBackDoorsStatus(vehicle)
+
     if not isTruckerVehicle(vehicle) or CurrentPlate ~= QBCore.Functions.GetPlate(vehicle) then
         return QBCore.Functions.Notify(Lang:t("error.vehicle_not_correct"), "error")
     end
-    if not BackDoorsOpen(vehicle) then
+
+    if doorStatus == 'CLOSED' then
         return QBCore.Functions.Notify(Lang:t("error.backdoors_not_open"), "error")
+    elseif doorStatus == 'BROKEN' then
+        return QBCore.Functions.Notify(Lang:t('error.fix_broken_doors'), 'error')
     end
+
     local trunkpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
     if #(pos - vector3(trunkpos.x, trunkpos.y, trunkpos.z)) > Config.TruckerJobVehicles[tv].trunkpos then
         return QBCore.Functions.Notify(Lang:t("error.too_far_from_trunk"), "error")

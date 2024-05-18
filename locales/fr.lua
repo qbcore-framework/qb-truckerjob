@@ -8,7 +8,8 @@ local Translations = {
         backdoors_not_open = "Les portes arrière ne sont pas ouvertes",
         get_out_vehicle = "Vous devez sortir du véhicule",
         too_far_from_trunk = "Vous devez prendre les boites dans le coffre du véhicule",
-        too_far_from_delivery = "Vous être trop loin du point de livraison"
+        too_far_from_delivery = "Vous être trop loin du point de livraison",
+        fix_broken_doors = "Vous avez perdu les colis, réparez les portes cassées afin de continuer à travailler!"
     },
     success = {
         paid_with_cash = "$%{value} Depôt payé avec l'argent",
