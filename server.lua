@@ -112,7 +112,7 @@ end)
 QBCore.Functions.CreateCallback('qb-truckerjob:server:createVehicle', function(source, cb, spawnType, jobId, spawnId)
     local truckerRep = GetRep(source).trucker
     local vehicle = spawnType == 'truck' and truckerRep.activeTruck or jobs[jobId].cargo.trailer
-    local vehType = QBCore.Shared.Vehicles[truck] and QBCore.Shared.Vehicles[truck].type or 'automobile'
+    local vehType = QBCore.Shared.Vehicles[vehicle] and QBCore.Shared.Vehicles[vehicle].type or 'automobile'
     local veh = CreateVehicleServerSetter(joaat(vehicle), vehType, spawnType == 'truck' and Config.Coords.TruckSpawns[spawnId] or Config.Coords.TrailerSpawns[spawnId])
     local netId = NetworkGetNetworkIdFromEntity(veh)
     cb(netId)
