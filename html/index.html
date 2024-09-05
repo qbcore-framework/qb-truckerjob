@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>QB TruckerJob</title>
+        <link rel="stylesheet" href="style.css" />
+        <!-- <script src="https://kit.fontawesome.com/d37231be1f.js" crossorigin="anonymous"></script> -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js" integrity="sha512-6sSYJqDreZRZGkJ3b+YfdhB3MzmuP9R7X1QZ6g5aIXhRvR1Y/N/P47jmnkENm7YL3oqsmI6AK+V6AD99uWDnIw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+        <!-- <script src="./vue.global.js"></script> -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+        <script src="app.js" defer></script>
+    </head>
+    <body>
+        <div id="app">
+            <Transition name="fade">
+                <div class="trucking-container" v-if="isTruckingOpen">
+                    <div class="trucking-header">
+                        <span>Qwerty's Logistics</span>
+                        <div v-if="activeJob" class="cancel-job" @click="cancelJob"><span>Cancel Current Job</span></div>
+                    </div>
+
+                    <div class="trucking-body">
+                        <div class="sidebar">
+                            <!-- Could turn into components -->
+                            <div class="sidebar-button" id="jobs" @click="handleSidebar">
+                                <i class="fas fa-truck"></i>
+                                <span>Jobs</span>
+                            </div>
+                            <div class="sidebar-button" id="skills" @click="handleSidebar">
+                                <i class="fas fa-cogs"></i>
+                                <span>Skills</span>
+                            </div>
+                            <div class="sidebar-button" id="trucks" @click="handleSidebar">
+                                <i class="fas fa-truck-front"></i>
+                                <span>Trucks</span>
+                            </div>
+                        </div>
+
+                        <div class="trucking-content">
+                            <div class="trucking-jobs" v-if="page == 'jobs'">
+                                <div class="trucking-job" v-for="(job, jobId) in jobs" v-bind:style="{display: job.active ? 'none' : 'flex'}" :key="job.id">
+                                    <div class="job-image">
+                                        <span v-if="!job.image" style="font-size: 1.2rem; color:#DC143C;">No Image Found</span>
+                                        <img v-else :src="'images/cargo/' + job.image" alt="job-image" />
+                                    </div>
+                                    <div class="job-title">
+                                        <span>{{ job.cargo.label }}</span>
+                                    </div>
+                                    <div class="job-info-container">
+                                        <div class="job-destination">
+                                            <span>{{ job.distance }}m</span>
+                                            <i v-bind:class="{'fa-solid fa-circle-check can-deliver': job.distanceLevel <= skills.distance.level, 'fa-solid fa-circle-xmark cant-deliver': job.distanceLevel > skills.distance.level}"></i>
+                                        </div>
+                                        <div class="job-reward">
+                                            <span>${{ Math.floor(job.distance * payPerMeter) }}</span>
+                                        </div>
+                                        <div class="job-skill-information">
+                                            <div class="job-skill">
+                                                <i class="fa-solid fa-box" v-bind:class="{'can-deliver': (job.cargoLevel || 1) <= skills.cargo.level}"></i>
+                                                <span>{{ job.cargoLevel || 1}}</span>
+                                            </div>
+                                            <div class="job-skill">
+                                                <i class="fa-solid fa-clock" v-bind:class="{'can-deliver': (job.timeLevel || 1) <= skills.time.level}"></i>
+                                                <span>{{ job.timeLevel || 1}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="job-accept button-green" v-bind:class="{'unavailable': !canAccept(jobId)}" @click="acceptJob(jobId)">
+                                        <span>Accept Job</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="trucking-skills" v-if="page == 'skills'">
+                                <span class="skill-points">Skill Points: {{ skillPoints }}</span>
+                                <div class="trucking-skill">
+                                    <div class="trucking-skill-header">
+                                        <i v-bind:class="skills.distance.icon"></i>
+                                        <span style="font-weight: bold; margin-right: auto;">Distance</span>
+                                        <div v-if="skillPoints > 0 && skills.distance.level != 4" class="trucking-skill-upgrade" @click="upgradeSkill('distance')"><span>Upgrade</span></div>
+                                    </div>
+                                    
+                                    <div class="skill-bar"><div class="skill-bar-fill" v-bind:style="{width: `${(100/4) * skills.distance.level}%`}"><span class="skill-bar-level">{{ skills.distance.level }}</span></div></div>
+                                </div>
+                                <div class="trucking-skill">
+                                    <div class="trucking-skill-header">
+                                        <i v-bind:class="skills.cargo.icon"></i>
+                                        <span style="font-weight: bold; margin-right: auto;">Fragile Cargo</span>
+                                        <div v-if="skillPoints > 0 && skills.cargo.level != 4" class="trucking-skill-upgrade" @click="upgradeSkill('cargo')"><span>Upgrade</span></div>
+                                    </div>
+                                    
+                                    <div class="skill-bar"><div class="skill-bar-fill" v-bind:style="{width: `${(100/4) * skills.cargo.level}%`}"><span class="skill-bar-level">{{ skills.cargo.level }}</span></div></div>
+                                </div>
+                                <div class="trucking-skill">
+                                    <div class="trucking-skill-header">
+                                        <i v-bind:class="skills.time.icon"></i>
+                                        <span style="font-weight: bold; margin-right: auto;">Quick Delivery</span>
+                                        <div v-if="skillPoints > 0 && skills.time.level != 4" class="trucking-skill-upgrade" @click="upgradeSkill('time')"><span>Upgrade</span></div>
+                                    </div>
+                                    
+                                    <div class="skill-bar"><div class="skill-bar-fill" v-bind:style="{width: `${(100/4) * skills.time.level}%`}"><span class="skill-bar-level">{{ skills.time.level }}</span></div></div>
+                                </div>
+                            </div>
+
+                            <div class="trucking-trucks" v-if="page == 'trucks'">
+                                <div class="trucking-truck" v-for="(truck, truckId) in trucks" :key="truck.id">
+                                    <div class="truck-info-container">
+                                        <div class="truck-image">
+                                            <img :src="`images/trucks/${truck.spawnName}.webp`" alt="truck-image" />
+                                        </div>
+                                        <div class="truck-name">
+                                            <span>{{ truck.name }}</span>
+                                        </div>
+                                    
+                                        <div class="truck-speed">
+                                            <i class="fa-solid fa-gauge-high"></i><span>{{ truck.speed.toFixed(0) }} mph</span>
+                                        </div>
+                                    </div>
+
+                                    <div v-if="!truck.owned && truck.price > 0" class="truck-purchase-button button-green" @click="purchaseTruck(truck.spawnName)">
+                                        <span>Purchase - ${{ truck.price }}</span>
+                                    </div>
+                                    <div v-else-if="truck.spawnName == activeTruck" class="truck-purchase-button active">
+                                        <span>Active</span>
+                                    </div>
+                                    <div v-else class="truck-purchase-button owned" @click="useTruck(truck.spawnName)">
+                                        <span>Use</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Transition>
+        </div>
+    </body>
+</html>

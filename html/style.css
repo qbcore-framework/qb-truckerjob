@@ -1,0 +1,372 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans&display=swap");
+
+body {
+    font-family: "Open Sans", sans-serif;
+    margin: 0;
+    padding: 0;
+    /*background-color: #f0f0f0;*/
+    
+}
+
+::-webkit-scrollbar {
+    width: 6px; /* width of the entire scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; /* color of the tracking area */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #DC143C; /* color of the scroll thumb */
+    border-radius: 25px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #DC143Ce3; /* color of the scroll thumb on hover */
+}
+
+.sidebar-button * {
+    pointer-events: none;
+}
+
+.trucking-skill-upgrade * {
+    pointer-events: none;
+}
+
+#app {
+    height: 100vh;
+    width: 100vw;
+    /*background: #fdc8c8;*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.trucking-container {
+    height: 90%;
+    width: 65%;
+    min-width: 560px;
+    background: #1e1e1e;
+    color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.trucking-header {
+    padding: 30px 22px;
+    margin-left: 12%;
+    font-size: 1.8rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+.cancel-job {
+    background-color: #DC143C;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 1.1rem;
+}
+
+.cancel-job * {
+    pointer-events: none;
+}
+
+.cancel-job:hover {
+    background-color: #DC143Ce3;
+    cursor: pointer;
+}
+
+.trucking-body {
+    display: flex;
+    gap: 10px;
+    height: 80%;
+    padding: 0 10px;
+}
+
+.sidebar {
+    width: 12%;
+    background: #333333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 12px;
+    gap: 8px;
+}
+
+.sidebar-button {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    background-color: #DC143C;
+    border-radius: 4px;
+    padding: 4px;
+    width: 100%;
+}
+
+.sidebar-button:hover {
+    cursor: pointer;
+    background-color: #DC143Ce3;
+}
+
+.trucking-content {
+    width: 100%;
+    background: #333333;
+    flex-direction: column;
+    padding: 5px;
+    overflow: auto;
+}
+
+.trucking-jobs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6.5%;
+    row-gap: 40px;
+    width: 100%;
+    height: 100%;
+}
+
+.trucking-job {
+    height: 50%;
+    width: 28%;
+    background-color: #DC143C;
+    overflow: hidden;
+    border-radius: 2px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.job-image {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 58%;
+    overflow: hidden;
+    background: #f0f0f0;
+}
+
+.job-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+.job-info-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.job-destination {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #AEAEAE;
+}
+
+.job-destination > svg {
+    font-size: 1.3rem;
+    background-color: white;
+    border: 1px solid white;
+    border-radius: 50%;
+}
+
+.cant-deliver {
+    color: #ff1e1e;
+}
+
+.can-deliver {
+    color: #7AB14D;
+}
+
+.job-reward {
+    color: rgb(0, 235, 0);
+}
+
+.job-skill-information {
+    display: flex;
+    gap: 10px;
+    font-size: 1.2rem;
+}
+
+.job-skill {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.job-accept {
+    padding: 4px;
+    border-radius: 4px;
+    margin-top: auto;
+    text-align: center;
+    border: 1px solid black;
+}
+
+.job-accept.unavailable {
+    background-color: #898989e3;
+    pointer-events: none;
+}
+
+.job-accept.unavailable:hover {
+    background-color: #898989e3;
+}
+
+.button-green {
+    background-color: #7ab14d;
+}
+
+.button-green:hover {
+    background-color: #7ab14de3;
+    cursor: pointer;
+}
+
+.trucking-skills {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 10px;
+}
+
+.skill-points {
+    font-weight: bold;
+    font-size: 1.05rem;
+    margin-left: auto;
+}
+
+.trucking-skill {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    height: 100%;
+    gap: 5px;
+}
+
+.trucking-skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 25%;
+    gap: 8px;
+}
+
+.trucking-skill-upgrade {
+    padding: 5px;
+    background-color: #DC143C;
+    border-radius: 4px;
+    margin-left: auto;
+}
+
+.trucking-skill-upgrade:hover {
+    cursor: pointer;
+    background-color: #DC143Ce3;
+}
+
+.skill-bar {
+    width: 100%;
+    background-color: #aeaeae;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 32%;
+}
+
+.skill-bar-fill {
+    background-color: #DC143C;
+    height: 100%;
+    border-radius: 10px;
+    width: 0%;
+    display: flex;
+    align-items: center;
+}
+
+.skill-bar-level {
+    position: absolute;
+    left: 49%;
+    translate: -100%;
+    font-size: 1.08rem;
+    font-weight: bold;
+}
+
+.trucking-trucks {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(34%, 1fr));
+    grid-gap: 5px;
+}
+
+.trucking-truck {
+    background-color: #DC143C;
+    border-radius: 4px;
+    padding: 1.5%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.truck-info-container {
+    height: 86%;
+}
+
+.truck-image {
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    height: 82%;
+}
+
+.truck-image img {
+    width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+.truck-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.truck-speed {
+    display: flex;
+    width: 18%;
+    justify-content: space-between;
+    font-size:  1.15rem;
+    align-items: center;
+}
+
+.truck-purchase-button {
+    border-radius: 4px;
+    padding: 3%;
+    font-size: 1.1rem;
+    margin-top: auto;
+}
+
+.truck-purchase-button.active {
+    pointer-events: none;
+    background-color: #898989e3;
+}
+
+.truck-purchase-button.owned {
+    background-color: #7ab14d;
+}
+
+.truck-purchase-button.owned:hover {
+    cursor: pointer;
+    background-color: #7ab14de3;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
