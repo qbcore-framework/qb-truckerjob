@@ -1,6 +1,7 @@
 QBCore = exports['qb-core']:GetCoreObject()
--- should compact variables, used to keep track of entities and zones throughout functions
+-- could compact variables, used to keep track of entities and zones throughout functions
 local truckZone = nil -- Truck return zone
+local exitingTruck = false
 local trailerZone = nil
 local dropOffZone = nil
 local isInDropoffZone = nil
@@ -8,11 +9,12 @@ local currentJob = nil
 local currentTruck = nil
 local currentTrailer = nil
 local blip = nil
-local exitingTruck = false
 
 -- TODO -- 
 -- Implement truck return point. [Done?] Maybe more testing for edge cases
 -- Maybe implement chance for skilled jobs to increase low level job amount
+-- Implement locales
+-- Convert jobs UI page to grid?
 
 -- Performs shape test to check if spawn is clear
 local function GetSpawnPoint(isTrailer) -- Change parameter to string for better understanding?
@@ -181,7 +183,6 @@ local function CreateTrailerZone(jobId, jobInfo)
     })
 end
 
--- Big function
 local function AcceptJob(jobId, cb)
     QBCore.Functions.TriggerCallback('qb-truckerjob:server:acceptJob', function(isActive, jobInfo) -- isActive mightn't be needed
         if currentJob then return QBCore.Functions.Notify('You already have an active job', 'error') end -- Somewhat redundant because server-side checks this
@@ -203,7 +204,7 @@ local function AcceptJob(jobId, cb)
                 TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', QBCore.Functions.GetPlate(currentTruck))
             end, 'truck', jobId, spawnId)
         else
-            QBCore.Functions.Notify('You already have a truck in use, continue to use that')
+            QBCore.Functions.Notify('You already have a truck in use, continue to use that', 'error')
         end
 
         CreateTrailerZone(jobId, jobInfo)
@@ -211,7 +212,8 @@ local function AcceptJob(jobId, cb)
 end
 
 -- Target cleanup
-AddEventHandler('onResourceStop', function()
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
     exports['qb-target']:RemoveZone(trailerZone)
     exports['qb-target']:RemoveZone('trucker_jobMenu')
 end)
