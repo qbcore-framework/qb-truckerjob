@@ -35,7 +35,7 @@ The script can be configured through the `config.lua` file. Below are some of th
 - `DeliveryTypes`: Different types of deliveries based on skill levels.
 
 ## License
-
+```
 QBCore Framework
 Copyright (C) 2021 Joshua Eger
 
@@ -51,3 +51,4 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
+```
