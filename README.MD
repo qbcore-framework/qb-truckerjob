@@ -1,4 +1,4 @@
-# QBCore Trucker Job
+# qb-truckerjob
 
 This is a trucking resource for FiveM built for QBCore. It allows players to take on trucking jobs, delivering various types of cargo to different locations. The script includes features such as timed job generation, skill levels, and penalties for late or damaged deliveries.
 
