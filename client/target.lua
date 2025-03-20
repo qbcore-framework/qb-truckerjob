@@ -10,7 +10,6 @@ CreateThread(function()
                 event = 'qb-truckerjob:client:openMenu',
                 icon = 'fas fa-truck',
                 label = 'Trucking Jobs Menu', -- Locale
-                --canInteract = function() return QBCore.Functions.GetPlayerData().job.name == 'trucker' end,
             }
         },
         distance = 2.5,
