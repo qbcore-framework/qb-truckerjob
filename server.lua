@@ -101,11 +101,11 @@ QBCore.Functions.CreateCallback('qb-truckerjob:server:acceptJob', function(sourc
 
     job.active = source
     job.time = GetGameTimer() + (300000 + (math.floor(job.distance) / 1000 * 60000)) -- add 5 minutes + 1 minute per km
-    print(jobs[jobId].active, jobs[jobId].time)
+
     if job.timeLevel then
         job.time -= 45000 * job.timeLevel -- remove 45 seconds per timed delivery skill level
     end
-    print(jobs[jobId].active, jobs[jobId].time, jobs[jobId].time - GetGameTimer())
+
     cb(jobs[jobId].active, jobs[jobId])
 end)
 
@@ -198,7 +198,6 @@ QBCore.Functions.CreateCallback('qb-truckerjob:server:upgradeSkill', function(so
     local Player = QBCore.Functions.GetPlayer(source)
     local rep = GetRep(source)
     local truckerRep = rep.trucker
-    --[[ Could possibly abstract getting skills into a shared function ]] -- Done
 
     print(truckerRep.skillPoints)
 
