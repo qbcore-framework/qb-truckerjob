@@ -1,20 +1,21 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local Bail = {}
 
+local function handleMoneyDeduction(player, amount, paymentMethod, bailKey)
+    player.Functions.RemoveMoney(paymentMethod, amount, 'tow-received-bail')
+    TriggerClientEvent('QBCore:Notify', source, Lang:t('success.paid_with_'..paymentMethod, { value = amount }), 'success')
+    Bail[player.PlayerData.citizenid] = amount
+    TriggerClientEvent('qb-trucker:client:SpawnVehicle', source, vehInfo)
+end
+
 RegisterNetEvent('qb-trucker:server:DoBail', function(bool, vehInfo)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if bool then
-        if Player.PlayerData.money.cash >= Config.TruckerJobTruckDeposit then
-            Bail[Player.PlayerData.citizenid] = Config.TruckerJobTruckDeposit
-            Player.Functions.RemoveMoney('cash', Config.TruckerJobTruckDeposit, 'tow-received-bail')
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('success.paid_with_cash', { value = Config.TruckerJobTruckDeposit }), 'success')
-            TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
-        elseif Player.PlayerData.money.bank >= Config.TruckerJobTruckDeposit then
-            Bail[Player.PlayerData.citizenid] = Config.TruckerJobTruckDeposit
-            Player.Functions.RemoveMoney('bank', Config.TruckerJobTruckDeposit, 'tow-received-bail')
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('success.paid_with_bank', { value = Config.TruckerJobTruckDeposit }), 'success')
-            TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
+        local paymentMethod = Player.PlayerData.money.cash >= Config.TruckerJobTruckDeposit and 'cash' or 
+                              Player.PlayerData.money.bank >= Config.TruckerJobTruckDeposit and 'bank' or nil
+        if paymentMethod then
+            handleMoneyDeduction(Player, Config.TruckerJobTruckDeposit, paymentMethod, 'tow-received-bail')
         else
             TriggerClientEvent('QBCore:Notify', src, Lang:t('error.no_deposit', { value = Config.TruckerJobTruckDeposit }), 'error')
         end
